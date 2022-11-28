@@ -1,0 +1,12 @@
+{
+    "name": "sdle-proj2",
+    "image": "ubuntu:latest",
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {},
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "runArgs": [
+        "--name", "sdle-proj2"
+    ],
+    "postCreateCommand": "npm install"
+}
