@@ -5,12 +5,15 @@ export default class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
 
-  constructor(configs, onPeerFound) {
+  constructor(configs, onPeerFound, onLookupFinished) {
+    this.timelineServerPort = configs.timelineServerPort;
+    this._onLookupFinished = onLookupFinished;
+
     this._dht = new DHT({
-      bootstrap: configs.bootstrapNodes.map(elem => `${elem.ip}:${elem.port}`)
+      bootstrap: configs.bootstrapNodes
     });
 
-    const dhtPort = configs.dhtServerIp ? configs.dhtServerIp.port : 8000;
+    const dhtPort = configs.peerFinderPort ? configs.peerFinderPort : 8000;
     this._dht.listen(
       dhtPort,
       () => console.log(`[PEER] Started listening for DHT events on port '${dhtPort}'`)
@@ -34,10 +37,10 @@ export default class PeerFinder {
   }
 
   announce(userTag) {
-    this._dht.announce(this._hash(userTag)) 
+    this._dht.announce(this._hash(userTag), this.timelineServerPort); 
   }
 
   lookup(userTag) {
-    this._dht.lookup(this._hash(userTag));
+    this._dht.lookup(this._hash(userTag), this._onLookupFinished);
   }
 }

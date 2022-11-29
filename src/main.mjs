@@ -4,7 +4,7 @@ import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
 import PeerFinder from './peer-finder.mjs';
 
-const validArguments = ['dhtServerIp', 'timelineServerIp', 'bootstrapNodes'];
+const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes'];
 
 const isValidIpV4WithPort = (ipString) => {
   const ipParts = ipString.split(':')
@@ -21,10 +21,14 @@ const isValidIpV4WithPort = (ipString) => {
     throw new Error('IP given has a port out of range: [1, 65535]');
   }
 
-  return {
-    ip: ipParts[0],
-    port: ipParts[1]
+  return ipString
+}
+
+const isValidPort = (portString) => {
+  if (portString <= 0 || portString > 65535) {
+    throw new Error('IP given has a port out of range: [1, 65535]');
   }
+  return Number.parseInt(portString);
 }
 
 const parseConfigFile = (configPath) => {
@@ -36,10 +40,10 @@ const parseConfigFile = (configPath) => {
   }
 
   if (configs.dhtServerIp) {
-    configs.dhtServerIp = isValidIpV4WithPort(configs.dhtServerIp);
+    configs.dhtServerIp = isValidPort(configs.dhtServerIp);
   }
   if (configs.timelineServerIp) {
-    configs.timelineServerIp = isValidIpV4WithPort(configs.timelineServerIp);
+    configs.timelineServerIp = isValidPort(configs.timelineServerIp);
   }
   if (configs.bootstrapNodes) {
     configs.bootstrapNodes = configs.bootstrapNodes.map(isValidIpV4WithPort);
@@ -63,8 +67,7 @@ const main = async () => {
       return obj;
     }, {});
   
-  const peerFinder = new PeerFinder(configs, console.log);
-  peerFinder.announce('@fpoliveira')
+  const peerFinder = new PeerFinder(configs);
 }
 
 main()

@@ -1,5 +1,5 @@
 {
-    "dhtServerIp": "127.0.0.1:8000",
-    "timelineServerIp": "127.0.0.1:5000",
+    "peerFinderPort": "8000",
+    "timelineServerPort": "5000",
     "bootstrapNodes": []
 }

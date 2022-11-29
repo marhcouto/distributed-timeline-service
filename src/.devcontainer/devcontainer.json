@@ -8,5 +8,5 @@
     "runArgs": [
         "--name", "sdle-proj2"
     ],
-    "postCreateCommand": "npm install"
+    "postCreateCommand": "npm install && npm install -g npm@latest"
 }
