@@ -2,7 +2,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
-import Server from './server.mjs';
+import PeerFinder from './peer-finder.mjs';
 
 const validArguments = ['dhtServerIp', 'timelineServerIp', 'bootstrapNodes'];
 
@@ -62,8 +62,9 @@ const main = async () => {
       
       return obj;
     }, {});
-
-  const server = new Server(configs);
+  
+  const peerFinder = new PeerFinder(configs, console.log);
+  peerFinder.announce('@fpoliveira')
 }
 
 main()
