@@ -1,11 +1,12 @@
-import Post from '../Components/post'
+import Post from '../Components/post';
+import TopNavbar from '../Components/navbar';
 
 
 function User() {
     return (
-      <div className="App">
-        User
-      </div>
+        <><TopNavbar></TopNavbar><div className="App">
+            User
+        </div></>
     );
   }
   

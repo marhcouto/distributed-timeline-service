@@ -5,14 +5,16 @@ import Navbar from 'react-bootstrap/Navbar';
 function TopNavbar() {
   return (
     <>
-      <br />
-      <Navbar bg="primary" variant="dark">
+      <Navbar bg="primary" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand href="#home">Twitter</Navbar.Brand>
+          <Navbar.Brand href="/">Twitter</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#home">Feed</Nav.Link>
-            <Nav.Link href="#features">User</Nav.Link>
+            <Nav.Link href="/">Feed</Nav.Link>
+            <Nav.Link href="/user">User</Nav.Link>
           </Nav>
+          </Navbar.Collapse>
         </Container>
       </Navbar>
     </>
