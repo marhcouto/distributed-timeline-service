@@ -24,7 +24,7 @@ export default function Post(props) {
           {post.user}
         </Typography>
         <Typography className="post__date" variant="subtitle2">
-          {getPublishPostDate(createdAt)}
+          {getPublishPostDate(post.createdAt)}
         </Typography>
         <Typography className="post__text" component="p">
           {post.text}
