@@ -2,9 +2,10 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
-import PeerFinder from './peer-finder.mjs';
+import { TimelineModel } from './timeline/TimelineModel.mjs';
+import { TimelineServer } from './timeline/TimelineServer.mjs';
 
-const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes'];
+const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes', 'dataPath', 'userName'];
 
 const isValidIpV4WithPort = (ipString) => {
   const ipParts = ipString.split(':')
@@ -63,11 +64,13 @@ const main = async () => {
     .filter(key => validArguments.includes(key))
     .reduce((obj, key) => {
       obj[key] = argv[key];
-      
       return obj;
     }, {});
-  
-  const peerFinder = new PeerFinder(configs);
+  if (!configs.dataPath) {
+    configs.dataPath = 'data.json';
+  }
+
+  new TimelineServer(configs, await TimelineModel.createTimeline(configs));
 }
 
 main()
