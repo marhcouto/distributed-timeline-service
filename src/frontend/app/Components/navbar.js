@@ -8,11 +8,10 @@ function TopNavbar() {
       <br />
       <Navbar bg="primary" variant="dark">
         <Container>
-          <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+          <Navbar.Brand href="#home">Twitter</Navbar.Brand>
           <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#features">Features</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
+            <Nav.Link href="#home">Feed</Nav.Link>
+            <Nav.Link href="#features">User</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
