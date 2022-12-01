@@ -1,12 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Feed from './Pages/Feed';
+import User from './Pages/User';
 
 function App() {
   return (
-    <div className="App">
-      <Feed></Feed>
-    </div>
+    
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Feed />} />
+          <Route path="/user" element={<User />} />
+        </Routes>
+      </BrowserRouter>
+
   );
 }
 
