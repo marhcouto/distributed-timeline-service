@@ -1,4 +1,4 @@
-import Post from '../Components/post';
+import Post from '../Components/Post';
 import TopNavbar from '../Components/navbar';
 import UserCard from '../Components/userCard';
 
