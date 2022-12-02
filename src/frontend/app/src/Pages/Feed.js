@@ -1,12 +1,20 @@
-import Post from '../Components/post'
+import Post from '../Components/Post'
+import CreatePost from '../Components/CreatePost.js'
 
 
 function Feed() {
+
     return (
-      <div className="App">
-        Feed
+      <div>
+      <div className="h-100 d-flex align-items-center justify-content-center">
+        <CreatePost/>
+      </div>
+      <hr>
+      </hr>
+      
+
       </div>
     );
-  }
-  
-  export default Feed;
+}
+
+export default Feed;
