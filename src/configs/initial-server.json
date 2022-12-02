@@ -1,6 +1,6 @@
 {
-    "userName": "fpoliveira",
-    "peerFinderPort": "8000",
-    "timelineServerPort": "5000",
-    "bootstrapNodes": []
+  "userName": "fpoliveira",
+  "peerFinderPort": "8000",
+  "timelineServerPort": "5000",
+  "bootstrapNodes": []
 }

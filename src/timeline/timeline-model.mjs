@@ -1,5 +1,7 @@
 import timestamp from 'unix-timestamp';
 
+timestamp.round = true;
+
 export class TimelineModel {
   constructor(userName) {
     this.userName = userName;
@@ -20,6 +22,9 @@ export class TimelineModel {
   }
 
   getTimelineForUser(userName) {
+    if (userName === this.userName) {
+      return this.timeline;
+    }
     return this.following.get(userName);
   }
 
@@ -39,7 +44,18 @@ export class TimelineModel {
   }
 
   getMergedTimeline() {
-    throw new Error('Merge timeline for all following');
+    const mergedTimeline = this.timeline.map((elem) => { return {
+      ...elem,
+      userName: this.userName
+    }});
+    this.following.forEach((v, k) => {
+      mergedTimeline.push(...v.map(elem => { return {
+        ...elem,
+        userName: k
+      }}))
+    })
+    mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
+    return mergedTimeline;
   }
 
   static async createTimeline(configs) {

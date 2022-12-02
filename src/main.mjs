@@ -2,8 +2,8 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
-import { TimelineModel } from './timeline/TimelineModel.mjs';
-import { TimelineServer } from './timeline/TimelineServer.mjs';
+import { TimelineModel } from './timeline/timeline-model.mjs';
+import { startTimelineServer } from './timeline/timeline-server.mjs';
 
 const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes', 'dataPath', 'userName'];
 
@@ -70,7 +70,7 @@ const main = async () => {
     configs.dataPath = 'data.json';
   }
 
-  new TimelineServer(configs, await TimelineModel.createTimeline(configs));
+  startTimelineServer(configs, await TimelineModel.createTimeline(configs));
 }
 
 main()

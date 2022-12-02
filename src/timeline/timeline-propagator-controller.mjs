@@ -1,27 +1,16 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-
-export class TimelineServer {
-  constructor(configs, timelineModel) {
+export class TimelinePropagatorController {
+  constructor(app, timelineModel) {
     this.timelineModel = timelineModel;
-    const app = express();
-    app.use(cors())
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }))
 
     app.get('/timeline/:id', this._getTimelineRequestHandler.bind(this));
     app.put('/timeline/:id', this._postTimelineRequestHandler.bind(this));
-
-    app.listen(configs.timelineServerPort, () => {
-      console.log(`[Timeline Server] Listening for requests at port ${configs.timelineServerPort}`);
-    })
   }
 
   _getTimelineRequestHandler(req, res) {
     const userName = req.params.id;
     const timeline = this.timelineModel.getTimelineForUser(userName);
     if (!timeline) {
+      console.log(`[TPC] GET: Can't find timeline for ${userName}`);
       res.status(404).end();
       return;
     }
@@ -29,15 +18,18 @@ export class TimelineServer {
     res.writeHead(200, {
       'Content-Type': 'application/json'
     });
-    res.write(JSON.stringify({name: "Francisco"}));
+    res.write(JSON.stringify(timeline));
     res.end();
+    console.log(`[TPC] GET: Timeline sent for ${userName}`);
   }
 
   _postTimelineRequestHandler(req, res) {
     const userName = req.params.id;
     if (this.timelineModel.updateTimeline(userName, req.body)) {
+      console.log(`[TPC] POST: Received updated timeline for ${userName}`);
       res.status(204).end();
     }
+    console.log(`[TPC] POST: Received updated timeline for ${userName} but it's not followed by me`);
     res.status(404).end();
   }
 }
