@@ -1,8 +1,8 @@
-import PeerFinder from '../peer-finder.mjs'
+import PeerFinder from '../peer-finder.mjs';
+import axios from 'axios';
 
 export class TimelineClientController {
   constructor(configs, app, timelineModel) {
-    this._userName = configs.userName;
     this._timelineModel = timelineModel;
     this._peerFinder = new PeerFinder(configs, this._onPeerFound.bind(this));
 
@@ -36,15 +36,19 @@ export class TimelineClientController {
     const body = req.body;
     this._timelineModel.publishMessage(body.message);
 
-    this._anounceLookupForPeers(this._userName);
-    this._peerFinder.lookup(this._userName, async (error, nFoundClients) => {
+    this._anounceLookupForPeers(this._timelineModel.userName);
+    this._peerFinder.lookup(this._timelineModel.userName, async (error, nFoundClients) => {
       if (error || nFoundClients === 0) {
         return;
       }
-      for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(this._userName))) {
-        const response = await fetch(`http://${neigh.host}:${neigh.port}/timeline/${this._userName}`, {
-          method: 'PUT'
-        });
+      for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(this._timelineModel.userName))) {
+        try {
+          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${this._timelineModel.userName}`, this._timelineModel.getTimelineForUser(this._timelineModel.userName));
+        } catch (e) {
+          if (e.code !== 403) {
+            console.log(`[TCC] Client ${neigh.host}:${neigh.port} rejected timeline update`);
+          }
+        }
       }
     });
     rep.status(204).end();
@@ -63,15 +67,14 @@ export class TimelineClientController {
       }
 
       for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(userName))) {
-        const response = await fetch(`http://${neigh.host}:${neigh.port}/timeline/${userName}`);
-        if (!response.ok) {
-          continue;
+        try {
+          const timeline = await axios.get(`http://${neigh.host}:${neigh.port}/timeline/${userName}`);
+          this._timelineModel.followUser(userName, timeline.data);
+          rep.status(204).end();
+          return;
+        } catch {
+          console.log(`[TCC] Failed communication with ${neigh.host}:${neigh.port}`);
         }
-        const timeline = await response.json();
-
-        this._timelineModel.followUser(userName, timeline);
-        rep.status(204).end();
-        return;
       }
       rep.status(404).end();
     })
