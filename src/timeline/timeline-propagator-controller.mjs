@@ -1,5 +1,10 @@
+import { log } from '../utils/logging.mjs';
+
 export class TimelinePropagatorController {
   constructor(app, timelineModel) {
+    this.produceLog = (message) => {
+      log('TPC', message);
+    }
     this._timelineModel = timelineModel;
 
     app.get('/timeline/:id', this._getTimelineRequestHandler.bind(this));
@@ -10,7 +15,7 @@ export class TimelinePropagatorController {
     const userName = req.params.id;
     const timeline = this._timelineModel.getTimelineForUser(userName);
     if (!timeline) {
-      console.log(`[TPC] GET: Can't find timeline for ${userName}`);
+      this.produceLog(`GET | Can't find timeline for ${userName}`);
       res.status(404).end();
       return;
     }
@@ -20,7 +25,7 @@ export class TimelinePropagatorController {
     });
     res.write(JSON.stringify(timeline));
     res.end();
-    console.log(`[TPC] GET: Timeline sent for ${userName}`);
+    this.produceLog(`GET | Timeline sent for ${userName}`);
   }
 
   _postTimelineRequestHandler(req, res) {
@@ -31,10 +36,10 @@ export class TimelinePropagatorController {
     }
 
     if (this._timelineModel.updateTimeline(userName, req.body)) {
-      console.log(`[TPC] POST: Received updated timeline for ${userName}`);
+      this.produceLog(`POST | Received updated timeline for ${userName}`);
       res.status(204).end();
     }
-    console.log(`[TPC] POST: Received updated timeline for ${userName} but it's not followed by me`);
+    this.produceLog(`POST | Received updated timeline for ${userName} but it's not followed by me`);
     res.status(404).end();
   }
 }
