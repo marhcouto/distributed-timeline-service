@@ -5,7 +5,7 @@ import crypto from 'crypto';
 const MAX_PEER_AGE = 30000;
 const REFRESH_TIME = 0.75 * MAX_PEER_AGE; 
 
-export default class PeerFinder {
+export class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
 

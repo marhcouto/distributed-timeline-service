@@ -35,7 +35,7 @@ export class TimelineModel {
     })
   }
 
-  updateTimeline(userName, timelineData) {
+  replaceTimeline(userName, timelineData) {
     if (this.following.has(userName)) {
       this.following.set(userName, timelineData);
       return true;
@@ -43,27 +43,46 @@ export class TimelineModel {
     return false
   }
 
-  getMergedTimeline() {
-    const mergedTimeline = this.timeline.map((elem) => { return {
-      ...elem,
-      userName: this.userName
-    }});
-    this.following.forEach((v, k) => {
-      mergedTimeline.push(...v.map(elem => { return {
-        ...elem,
-        userName: k
-      }}))
-    })
-    mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
-    return mergedTimeline;
+  lastUpdated(userName) {
+    let timeline = null;
+    if (userName === this.userName) {
+      timeline = this.timeline
+    } else {
+      timeline = this.following.get(userName);
+    }
+
+    if (timeline == null) {
+      return null;
+    }
+    if (timeline.length === 0) {
+      return 0;
+    }
+
+    return timeline[timeline.length - 1].timestamp;
   }
 
-  static async createTimeline(configs) {
-    try {
-      //const data = await fs.readFile(configs.dataPath, 'utf-8');
-      throw new Error('TODO: read from file');
-    } catch (e) {
-      return new TimelineModel(configs.userName);
+  toJSON() {
+    const timelineModelObj = {}
+    timelineModelObj.userName = this.userName;
+    timelineModelObj.timeline = this.timeline;
+    timelineModelObj.following = []
+    for (const [key, value] of this.following.entries()) {
+      timelineModelObj.following.push({
+        userName: key,
+        timeline: value 
+      })
     }
+
+    return JSON.stringify(timelineModelObj);
+  }
+
+  static fromJSON(jsonStr) {
+    const timelineModelObj = JSON.parse(jsonStr);
+    const timelineModel = new TimelineModel(timelineModelObj.userName);
+    timelineModel.timeline = timelineModelObj.timeline;
+    for (const timeline of timelineModelObj.following) {
+      timelineModel.following.set(timeline.userName, timeline.timeline);
+    }
+    return timelineModel;
   }
 }

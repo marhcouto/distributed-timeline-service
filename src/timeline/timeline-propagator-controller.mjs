@@ -1,19 +1,30 @@
 import { log } from '../utils/logging.mjs';
 
 export class TimelinePropagatorController {
-  constructor(app, timelineModel) {
+  constructor(app, timelineService) {
     this.produceLog = (message) => {
       log('TPC', message);
     }
-    this._timelineModel = timelineModel;
+    this._timelineService = timelineService;
 
     app.get('/timeline/:id', this._getTimelineRequestHandler.bind(this));
     app.put('/timeline/:id', this._postTimelineRequestHandler.bind(this));
+    app.get('/timeline/last-update/:id', this._getTimelineLastUpdateHandler.bind(this));
+  }
+
+  _getTimelineLastUpdateHandler(req, res) {
+    const userName = req.params.id;
+    const timelineLastUpdate = this._timelineService.timelineLastUpdate(userName);
+    if (timelineLastUpdate == null) {
+      res.status(404).end();
+      return;
+    }
+    res.status(200).send(JSON.stringify({lastUpdated: timelineLastUpdate}));
   }
 
   _getTimelineRequestHandler(req, res) {
     const userName = req.params.id;
-    const timeline = this._timelineModel.getTimelineForUser(userName);
+    const timeline = this._timelineService.getTimelineForUser(userName);
     if (!timeline) {
       this.produceLog(`GET | Can't find timeline for ${userName}`);
       res.status(404).end();
@@ -30,16 +41,12 @@ export class TimelinePropagatorController {
 
   _postTimelineRequestHandler(req, res) {
     const userName = req.params.id;
-    if (userName === this._timelineModel.userName) {
-      res.status(403).end();
-      return;
-    }
 
-    if (this._timelineModel.updateTimeline(userName, req.body)) {
+    if (this._timelineService.replaceTimeline(userName, req.body)) {
       this.produceLog(`POST | Received updated timeline for ${userName}`);
       res.status(204).end();
     }
     this.produceLog(`POST | Received updated timeline for ${userName} but it's not followed by me`);
-    res.status(404).end();
+    res.status(403).end();
   }
 }

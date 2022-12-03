@@ -3,6 +3,6 @@
   "peerFinderPort": "8001",
   "timelineServerPort": "5001",
   "bootstrapNodes": [
-    "127.0.0.1:8000"
+    "127.0.0.1:8002"
   ]
 }
