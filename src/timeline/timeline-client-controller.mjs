@@ -9,6 +9,7 @@ export class TimelineClientController {
     this._pendingPeerFetch = new Map();
     app.post('/api/following/:id', this._followUser.bind(this));
     app.post('/api/timeline', this._postNewMessage.bind(this));
+    app.delete('/api/following/:id', this._unfollowUser.bind(this));
     app.get('/api/timeline', this._getTimeline.bind(this));
   }
 
@@ -51,6 +52,15 @@ export class TimelineClientController {
         }
       }
     });
+    rep.status(204).end();
+  }
+
+  _unfollowUser(req, rep) {
+    const userName = req.params.id;
+    if (!this._timelineModel.unfollowUser(userName)) {
+      rep.status(404).end();
+      return;
+    }
     rep.status(204).end();
   }
 

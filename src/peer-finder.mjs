@@ -1,6 +1,9 @@
 import DHT from 'bittorrent-dht';
 import crypto from 'crypto';
 
+const MAX_PEER_AGE = 30000;
+const REFRESH_TIME = 0.75 * MAX_PEER_AGE; 
+
 export default class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
@@ -9,7 +12,8 @@ export default class PeerFinder {
     this.timelineServerPort = configs.timelineServerPort;
 
     this._dht = new DHT({
-      bootstrap: configs.bootstrapNodes
+      bootstrap: configs.bootstrapNodes,
+      maxAge: MAX_PEER_AGE,
     });
 
     const dhtPort = configs.peerFinderPort ? configs.peerFinderPort : 8000;
@@ -45,6 +49,9 @@ export default class PeerFinder {
 
   announce(userTag) {
     this._dht.announce(this.hash(userTag), this.timelineServerPort); 
+    setTimeout(() => {
+      this.announce(userTag);
+    }, REFRESH_TIME);
   }
 
   lookup(userTag, onLookupFinishedCallback) {
