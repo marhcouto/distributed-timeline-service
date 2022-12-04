@@ -1,8 +1,0 @@
-2022-12-04T11:12:14.657Z | DHT | Started listening for DHT events on port '8002'
-2022-12-04T11:12:14.658Z | TS | Listening for requests at port 5002
-2022-12-04T11:12:17.715Z | DHT | Found node: 127.0.0.1:8001
-2022-12-04T11:12:17.715Z | DHT | Announced 'andre'
-2022-12-04T11:12:17.721Z | DHT | Received announce for 'b678bc2de826bc16d8504acbc00f8ab2dfa28555' by 127.0.0.1:5001
-2022-12-04T11:12:19.221Z | DHT | Found node: 127.0.0.1:8000
-2022-12-04T11:12:19.228Z | DHT | Received announce for '1b573587ea71ca9082f26d772d1151b8b5a73fed' by 127.0.0.1:5000
-2022-12-04T11:12:26.232Z | DHT | Received announce for 'b678bc2de826bc16d8504acbc00f8ab2dfa28555' by 127.0.0.1:5000

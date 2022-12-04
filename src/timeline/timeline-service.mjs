@@ -1,19 +1,18 @@
 import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
-import { log } from '../utils/logging.mjs'
 
 timestamp.round = true;
 
 export class TimelineService {
-  constructor(configs, timelineModel) {
+  constructor(configs, logger, timelineModel) {
     this._timelineModel = timelineModel;
 
-    this._peerFinder = new PeerFinder(configs, this._onPeerFound.bind(this));
+    this._peerFinder = new PeerFinder(configs, logger, this._onPeerFound.bind(this));
     this._pendingPeerFetch = new Map();
 
     this.produceLog = (message) => {
-      log('TS', message);
+      logger.log('TS', message);
     }
   }
 
@@ -117,20 +116,17 @@ export class TimelineService {
           return;
         }
         
-        console.error(`Getting updates for ${userName}`);
         const foundPeers = this._pendingPeerFetch.get(this._peerFinder.hash(userName));
         const localTimeline = this._timelineModel.getTimelineForUser(userName);
         let mostRecentTimelineUpdate = 0
         if (localTimeline.length !== 0) { 
           mostRecentTimelineUpdate = localTimeline[localTimeline.length - 1].timestamp
         }
-        console.error(`Most recent local timeline: ${mostRecentTimelineUpdate}`);
         let mostRecentHost = null;
         this.produceLog(`Found peers for ${userName}: ${JSON.stringify(foundPeers)}`);
         for(const neigh of foundPeers) {
           try {
             const timelineLastUpdate = (await axios.get(`http://${neigh.host}:${neigh.port}/timeline/last-update/${userName}`)).data.lastUpdated;
-            console.error(`Remote update: ${timelineLastUpdate}`);
             if (timelineLastUpdate && timelineLastUpdate > mostRecentTimelineUpdate) {
               mostRecentTimelineUpdate = timelineLastUpdate;
               mostRecentHost = neigh;

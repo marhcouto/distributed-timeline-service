@@ -1,10 +1,8 @@
-import { log } from '../utils/logging.mjs';
-
 export class TimelineClientController {
-  constructor(app, timelineService) {
+  constructor(app, logger, timelineService) {
     this._timelineService = timelineService;
     this.produceLog = (message) => {
-      log('TCC', message);
+      logger.log('TCC', message);
     }
 
     app.post('/api/following/:id', this._followUser.bind(this));

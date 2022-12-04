@@ -18,14 +18,14 @@ export const saveTimeline = async (configs, timelineModel) => {
   return fsp.writeFile(configs.dataPath, timelineModel.toJSON())
 }
 
-export const createTimeline = async (configs) => {
+export const createTimeline = async (configs, logger) => {
   try {
     const data = await fsp.readFile(configs.dataPath);
     const timelineModel = TimelineModel.fromJSON(data);
-    const timelineService = new TimelineService(configs, timelineModel);
+    const timelineService = new TimelineService(configs, logger, timelineModel);
     await timelineService.syncTimeline();
     return timelineService;
   } catch {
-    return new TimelineService(configs, new TimelineModel(configs.userName));
+    return new TimelineService(configs, logger, new TimelineModel(configs.userName));
   }
 }

@@ -3,9 +3,10 @@ import yargs from 'yargs';
 import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
 import { startTimelineServer } from './timeline/timeline-server.mjs';
-import { createTimeline, saveTimelineSync } from './timeline/timeline-fs.mjs';
+import { createTimeline, saveTimeline } from './timeline/timeline-fs.mjs';
+import { Logger } from './utils/logging.mjs';
 
-const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes', 'dataPath', 'userName'];
+const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes', 'dataPath', 'userName', 'logPath'];
 
 const isValidIpV4WithPort = (ipString) => {
   const ipParts = ipString.split(':')
@@ -55,6 +56,18 @@ const parseConfigFile = (configPath) => {
 
 const main = async () => {
   const argv = yargs(hideBin(process.argv))
+    .options({
+      'disable-logs': {
+        describe: 'If present disables saving logs into a log file',
+        default: false,
+        type: 'boolean'
+      },
+      'disable-backups': {
+        describe: "If present the state of the server isn't saved to disk when it's turned off",
+        default: false,
+        type: 'boolean'
+      }
+    })
     .config('config-file', 'Path to a JSON configuration file', parseConfigFile)
     .demandOption('config-file')
     .help()
@@ -67,15 +80,35 @@ const main = async () => {
       return obj;
     }, {});
   if (!configs.dataPath) {
-    configs.dataPath = `data/${configs.userName}`;
+    configs.dataPath = `data/${configs.userName}.json`;
   }
-  const timelineService = await createTimeline(configs);
+  if (!configs.logPath) {
+    configs.logPath = `logs/${configs.userName}.log`
+  }
+  configs.disableLogs = argv.disableLogs;
+  configs.disableBackups = argv.disableBackups;
+  
+  const logger = await Logger.createLogger(configs);
+  const timelineService = await createTimeline(configs, logger);
+
+  const backupJob = async () => {
+    await saveTimeline(configs, timelineService._timelineModel);
+    setTimeout(() => {
+      backupJob()
+    }, 5000);
+  }
+  if (!configs.disableBackups) {
+    logger.saveToFile = true;
+    backupJob()
+  }
   process.on('SIGINT', () => {
-    saveTimelineSync(configs, timelineService._timelineModel);
+    if (!configs.disableBackups) {
+      saveTimelineSync(configs, timelineService._timelineModel);
+    }
     process.exit()
   })
 
-  startTimelineServer(configs, timelineService);
+  startTimelineServer(configs, logger, timelineService);
 }
 
 main()

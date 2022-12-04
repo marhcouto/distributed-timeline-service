@@ -1,9 +1,7 @@
-import { log } from '../utils/logging.mjs';
-
 export class TimelinePropagatorController {
-  constructor(app, timelineService) {
+  constructor(app, logger, timelineService) {
     this.produceLog = (message) => {
-      log('TPC', message);
+      logger.log('TPC', message);
     }
     this._timelineService = timelineService;
 

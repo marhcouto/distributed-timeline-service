@@ -1,4 +1,3 @@
-import { log } from './utils/logging.mjs';
 import DHT from 'bittorrent-dht';
 import crypto from 'crypto';
 
@@ -10,11 +9,11 @@ export class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
 
-  constructor(configs, onPeerFound) {
+  constructor(configs, logger, onPeerFound) {
     this.timelineServerPort = configs.timelineServerPort;
 
     this.produceLog = (message) => {
-      log('DHT', message);
+      logger.log('DHT', message);
     }
 
     this._dht = new DHT({
