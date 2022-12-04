@@ -3,6 +3,7 @@ import DHT from 'bittorrent-dht';
 import crypto from 'crypto';
 
 const MAX_PEER_AGE = 30000;
+const TIME_BUCKET_OUTDATED = 30000;
 const REFRESH_TIME = 0.75 * MAX_PEER_AGE; 
 
 export class PeerFinder {
@@ -18,6 +19,7 @@ export class PeerFinder {
 
     this._dht = new DHT({
       bootstrap: configs.bootstrapNodes,
+      timeBucketOutdated: TIME_BUCKET_OUTDATED,
       maxAge: MAX_PEER_AGE,
     });
 

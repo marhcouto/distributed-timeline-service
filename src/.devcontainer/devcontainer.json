@@ -5,6 +5,13 @@
         "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/devcontainers/features/git:1": {}
     },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "humao.rest-client"
+            ]
+        }
+    },
     "runArgs": [
         "--name", "sdle-proj2"
     ],

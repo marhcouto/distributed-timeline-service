@@ -14,17 +14,20 @@ export class TimelineClientController {
   }
 
   _getTimeline(_, rep) {
+    this.produceLog('GET | Timeline');
     rep.status(200).send(this._timelineService.getMergedTimeline());
   }
 
   _postNewMessage(req, rep) {
     const body = req.body;
+    this.produceLog(`POST | Message: ${JSON.stringify(body.message)}`);
     this._timelineService.postNewMessage(body.message);
     rep.status(204).end();
   }
 
   _unfollowUser(req, rep) {
     const userName = req.params.id;
+    this.produceLog(`DELETE | Follow: ${userName}`);
     if (!this._timelineService.unfollowUser(userName)) {
       rep.status(404).end();
       return;
@@ -34,7 +37,7 @@ export class TimelineClientController {
 
   _followUser(req, rep) {
     const userName = req.params.id;
-
+    this.produceLog(`POST | Follow: ${userName}`);
     this._timelineService.followUser(userName)
       .then((_) => rep.status(204).end())
       .catch((_) => rep.status(404).end());

@@ -2,7 +2,6 @@ import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
 import { log } from '../utils/logging.mjs'
-import { saveTimelineSync } from './timeline-fs.mjs';
 
 timestamp.round = true;
 
@@ -95,8 +94,12 @@ export class TimelineService {
   }
 
   replaceTimeline(userName, timelineData) {
+    if(userName === this._timelineModel.userName) {
+      return false;
+    }
+
     const newTimelineLastUpdate = timelineData[timelineData.length - 1].timestamp;
-    if ((newTimelineLastUpdate && newTimelineLastUpdate < this.timelineLastUpdate(userName)) || (userName === this._timelineModel.userName)) {
+    if (newTimelineLastUpdate && newTimelineLastUpdate <= this.timelineLastUpdate(userName)) {
       return false;
     }
     this._timelineModel.replaceTimeline(userName, timelineData);
@@ -113,18 +116,21 @@ export class TimelineService {
           }))
           return;
         }
-
+        
+        console.error(`Getting updates for ${userName}`);
         const foundPeers = this._pendingPeerFetch.get(this._peerFinder.hash(userName));
         const localTimeline = this._timelineModel.getTimelineForUser(userName);
         let mostRecentTimelineUpdate = 0
         if (localTimeline.length !== 0) { 
-          mostRecentTimelineUpdate = localTimeline[localTimeline.length - 1]
+          mostRecentTimelineUpdate = localTimeline[localTimeline.length - 1].timestamp
         }
+        console.error(`Most recent local timeline: ${mostRecentTimelineUpdate}`);
         let mostRecentHost = null;
         this.produceLog(`Found peers for ${userName}: ${JSON.stringify(foundPeers)}`);
         for(const neigh of foundPeers) {
           try {
             const timelineLastUpdate = (await axios.get(`http://${neigh.host}:${neigh.port}/timeline/last-update/${userName}`)).data.lastUpdated;
+            console.error(`Remote update: ${timelineLastUpdate}`);
             if (timelineLastUpdate && timelineLastUpdate > mostRecentTimelineUpdate) {
               mostRecentTimelineUpdate = timelineLastUpdate;
               mostRecentHost = neigh;
@@ -161,7 +167,7 @@ export class TimelineService {
   getMergedTimeline() {
     const mergedTimeline = this._timelineModel.timeline.map((elem) => { return {
       ...elem,
-      userName: this_timelineModel.userName
+      userName: this._timelineModel.userName
     }});
     this._timelineModel.following.forEach((v, k) => {
       mergedTimeline.push(...v.map(elem => { return {

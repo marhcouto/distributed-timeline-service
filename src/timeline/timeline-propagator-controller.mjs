@@ -14,6 +14,7 @@ export class TimelinePropagatorController {
 
   _getTimelineLastUpdateHandler(req, res) {
     const userName = req.params.id;
+    this.produceLog(`GET | Last update: ${userName}`);
     const timelineLastUpdate = this._timelineService.timelineLastUpdate(userName);
     if (timelineLastUpdate == null) {
       res.status(404).end();
@@ -24,6 +25,7 @@ export class TimelinePropagatorController {
 
   _getTimelineRequestHandler(req, res) {
     const userName = req.params.id;
+    this.produceLog(`GET | Timeline: ${userName}`);
     const timeline = this._timelineService.getTimelineForUser(userName);
     if (!timeline) {
       this.produceLog(`GET | Can't find timeline for ${userName}`);
@@ -41,12 +43,13 @@ export class TimelinePropagatorController {
 
   _postTimelineRequestHandler(req, res) {
     const userName = req.params.id;
+    this.produceLog(`POST | Timeline: ${userName}`);
 
     if (this._timelineService.replaceTimeline(userName, req.body)) {
       this.produceLog(`POST | Received updated timeline for ${userName}`);
       res.status(204).end();
     }
-    this.produceLog(`POST | Received updated timeline for ${userName} but it's not followed by me`);
+    this.produceLog(`POST | Received updated timeline for ${userName} but was rejected`);
     res.status(403).end();
   }
 }
