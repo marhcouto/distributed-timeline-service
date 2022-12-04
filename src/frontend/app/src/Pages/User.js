@@ -1,12 +1,12 @@
-import Post from '../Components/Post';
-import TopNavbar from '../Components/navbar';
+import Post from '../Components/post';
 import UserCard from '../Components/userCard';
 
 
 function User() {
     return (
-        <><TopNavbar></TopNavbar><div className="App">
+        <><div className="App">
             <UserCard></UserCard>
+            <Post user="MIguel" text="grande golo de portugal!" createdAt='02/12/2022 15:05' />
         </div></>
     );
   }

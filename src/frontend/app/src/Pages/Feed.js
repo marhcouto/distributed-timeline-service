@@ -1,5 +1,4 @@
-import Post from '../Components/Post'
-import CreatePost from '../Components/CreatePost.js'
+import CreatePost from '../Components/createPost.js';
 
 
 function Feed() {
