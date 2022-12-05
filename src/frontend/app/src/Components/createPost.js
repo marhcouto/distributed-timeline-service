@@ -16,17 +16,16 @@ export default function CreatePost(props) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="form-group">
-                <div className="form-group">
-                    <label className="form-group mt-2">
-                    Name
-                    <textarea className="form-control mt-2" rows="4" cols="50" name="postText" value={postText} onChange={handleChange} placeholder="Insert your message" />
-                    </label>
+            <div>
+                <div className="feed p-2">
+                    <div className="d-flex form-group flex-row justify-content-between align-items-center p-2 bg-white border">
+                        <label className="form-group mt-2"> Name           
+                        <textarea className="form-control mt-3" rows="4" cols="105" name="postText" value={postText} onChange={handleChange} placeholder="What's on your mind?" />
+                        <button className="btn btn-success w-100 mt-2" type="submit">Post message</button> 
+                        </label>
+                    </div>
+                    <hr/>                                                       
                 </div>
-                <div className="form-group">
-                    <button className="btn btn-success w-100" type="submit">Post message</button> 
-                </div>
-                
             </div>
         </form>
     );
