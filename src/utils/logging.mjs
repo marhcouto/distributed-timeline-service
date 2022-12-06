@@ -10,7 +10,7 @@ export class Logger {
 
   static async _clearGarbageAndSetup(configs) {
     if (!fs.existsSync(path.dirname(configs.logPath))) {
-      await fsp.mkdirSync(path.dirname(configs.logPath));
+      await fs.mkdirSync(path.dirname(configs.logPath));
     }
     if (fs.existsSync(configs.logPath)) {
       await fsp.truncate(configs.logPath);

@@ -1,10 +1,12 @@
 import timestamp from 'unix-timestamp';
+import jose from 'node-jose';
 
 timestamp.round = true;
 
 export class TimelineModel {
-  constructor(userName) {
+  constructor(userName, keystore) {
     this.userName = userName;
+    this.keystore = keystore;
     this.following = new Map();
     this.timeline = [];
   }
@@ -65,6 +67,7 @@ export class TimelineModel {
     const timelineModelObj = {}
     timelineModelObj.userName = this.userName;
     timelineModelObj.timeline = this.timeline;
+    timelineModelObj.keystore = this.keystore.toJSON();
     timelineModelObj.following = []
     for (const [key, value] of this.following.entries()) {
       timelineModelObj.following.push({
@@ -76,9 +79,9 @@ export class TimelineModel {
     return JSON.stringify(timelineModelObj);
   }
 
-  static fromJSON(jsonStr) {
+  static async fromJSON(jsonStr) {
     const timelineModelObj = JSON.parse(jsonStr);
-    const timelineModel = new TimelineModel(timelineModelObj.userName);
+    const timelineModel = new TimelineModel(timelineModelObj.userName, await jose.JWK.asKeyStore(timelineModelObj.keystore));
     timelineModel.timeline = timelineModelObj.timeline;
     for (const timeline of timelineModelObj.following) {
       timelineModel.following.set(timeline.userName, timeline.timeline);

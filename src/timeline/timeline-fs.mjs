@@ -1,6 +1,7 @@
 import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
+import { createKeyPair } from '../auth.mjs';
 import { TimelineModel } from './timeline-model.mjs';
 import { TimelineService } from './timeline-service.mjs';
 
@@ -21,11 +22,12 @@ export const saveTimeline = async (configs, timelineModel) => {
 export const createTimeline = async (configs, logger) => {
   try {
     const data = await fsp.readFile(configs.dataPath);
-    const timelineModel = TimelineModel.fromJSON(data);
+    const timelineModel = await TimelineModel.fromJSON(data);
     const timelineService = new TimelineService(configs, logger, timelineModel);
-    await timelineService.syncTimeline();
+    await timelineService.syncTimeline(); // TODO: Might be a bug 
     return timelineService;
   } catch {
-    return new TimelineService(configs, logger, new TimelineModel(configs.userName));
+    const keystore = await createKeyPair();
+    return new TimelineService(configs, logger, new TimelineModel(configs.userName, keystore));
   }
 }
