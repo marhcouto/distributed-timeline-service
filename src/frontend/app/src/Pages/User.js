@@ -49,20 +49,6 @@ function User() {
                   listUnStyled
                   className="d-flex justify-content-between mb-0 pe-xl-5"
                 >
-                  <li>
-                    <MDBIcon far icon="comment" />
-                  </li>
-                  <li>
-                    <MDBIcon fas icon="retweet" />
-                    <span className="small ps-2">7</span>
-                  </li>
-                  <li>
-                    <MDBIcon far icon="heart" />
-                    <span className="small ps-2">35</span>
-                  </li>
-                  <li>
-                    <MDBIcon far icon="share-square" />
-                  </li>
                 </MDBTypography>
               </div>
             </div>
