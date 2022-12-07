@@ -9,6 +9,7 @@ export const startTimelineServer = (configs, logger, timelineService) => {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(express.static('public/'));
 
   new TimelinePropagatorController(app, logger, timelineService);
   new TimelineClientController(app, logger, timelineService);
