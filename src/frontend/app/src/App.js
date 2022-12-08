@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Feed from './Pages/Feed';
 import User from './Pages/User';
 import TopNavbar from './Components/navbar';
@@ -10,12 +10,12 @@ function App() {
   return (
     <div>
       <TopNavbar></TopNavbar>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/user" element={<User />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
