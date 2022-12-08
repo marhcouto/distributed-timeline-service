@@ -1,0 +1,13 @@
+POST http://localhost:5000/api/following/andre HTTP/1.1
+
+###
+
+
+POST http://localhost:5002/api/timeline HTTP/1.1
+content-type: application/json
+
+{
+  "message": "Hello world, DS!"
+}
+
+###

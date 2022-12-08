@@ -1,6 +1,8 @@
 import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
+import jose from 'node-jose';
+import { buildSignedMessage, extractSignedMessage } from '../auth.mjs';
 
 timestamp.round = true;
 
@@ -36,13 +38,15 @@ export class TimelineService {
     return this._timelineModel.unfollowUser(userName);
   }
 
-  postNewMessage(message) {
+  async postNewMessage(message) {
     const outcome = this._timelineModel.publishMessage(message);
-    this._propagateTimeline(this._timelineModel.userName);
+    await this._propagateTimeline(this._timelineModel.userName);
     return outcome;
   }
 
-  _propagateTimeline(userName) {
+  async _propagateTimeline(userName) {
+    const signedTimeline = await this._timelineModel.getTimelineForUserSigned(userName);
+
     this._anounceLookupForPeers(userName);
     this._peerFinder.lookup(userName, async (error, nFoundClients) => {
       if (error || nFoundClients === 0) {
@@ -50,7 +54,7 @@ export class TimelineService {
       }
       for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(userName))) {
         try {
-          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, this._timelineModel.getTimelineForUser(userName));
+          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, signedTimeline);
         } catch (e) {
           if (e.code !== 403) {
             this.produceLog(`Client ${neigh.host}:${neigh.port} rejected timeline update`);
@@ -75,7 +79,7 @@ export class TimelineService {
         for(const neigh of foundPeers) {
           try {
             const timeline = await axios.get(`http://${neigh.host}:${neigh.port}/timeline/${userName}`);
-            this._timelineModel.followUser(userName, timeline.data);
+            this._timelineModel.followUser(userName, timeline.data.content, timeline.data.key);
             this._peerFinder.announce(userName);
             resolve('FOUND_PEER');
             return;
@@ -92,16 +96,17 @@ export class TimelineService {
     return this._timelineModel.lastUpdated(userName);
   }
 
-  replaceTimeline(userName, timelineData) {
+  async replaceTimeline(userName, timelineData) {
+    const timeline = await extractSignedMessage(userName, this._timelineModel.keystore, timelineData);
     if(userName === this._timelineModel.userName) {
       return false;
     }
 
-    const newTimelineLastUpdate = timelineData[timelineData.length - 1].timestamp;
+    const newTimelineLastUpdate = timeline[timeline.length - 1].timestamp;
     if (newTimelineLastUpdate && newTimelineLastUpdate <= this.timelineLastUpdate(userName)) {
       return false;
     }
-    this._timelineModel.replaceTimeline(userName, timelineData);
+    this._timelineModel.replaceTimeline(userName, timeline);
     return true;
   }
 
@@ -142,22 +147,30 @@ export class TimelineService {
         }
         console.log(mostRecentHost)
         const updatedTimeline = await axios.get(`http://${mostRecentHost.host}:${mostRecentHost.port}/timeline/${userName}`);
-        this._timelineModel.replaceTimeline(userName, updatedTimeline.data);
+        this._timelineModel.replaceTimeline(userName, updatedTimeline.data.content);
         this._peerFinder.announce(userName);
         resolve('DONE_UPDATE');
       })
     })
   }
 
-  syncTimeline() {
+  async syncTimeline() {
     for (const following of this._timelineModel.following.keys()) {
       this.updateTimeline(following);
     }
-    this._propagateTimeline(this._timelineModel.userName);
+    await this._propagateTimeline(this._timelineModel.userName);
   }
 
   getTimelineForUser(userName) {
     return this._timelineModel.getTimelineForUser(userName)
+  }
+
+  async getTimelineForUserSigned(userName) {
+    return await this._timelineModel.getTimelineForUserSigned(userName);
+  }
+
+  async getTimelineForUserWithKey(userName) {
+    return await this._timelineModel.getTimelineForUserWithKey(userName);
   }
 
   getMergedTimeline() {

@@ -1,5 +1,6 @@
 import timestamp from 'unix-timestamp';
 import jose from 'node-jose';
+import { buildSignedMessage, extractSignedMessage, buildMessageWithKey } from '../auth.mjs';
 
 timestamp.round = true;
 
@@ -11,11 +12,11 @@ export class TimelineModel {
     this.timeline = [];
   }
 
-  followUser(userName, activityArray) {
+  async followUser(userName, activityArray, key) {
     if (typeof userName !== 'string') {
       throw new Error("[TimelineModel] Tried to insert userName that wasn't a string");
     }
-
+    await this.keystore.add(key);
     return this.following.set(userName, activityArray);
   }
 
@@ -30,6 +31,26 @@ export class TimelineModel {
     return this.following.get(userName);
   }
 
+  async getTimelineForUserSigned(userName) {
+    let timeline;
+    if (userName === this.userName) {
+      timeline = this.timeline;
+    } else {
+      timeline = this.following.get(userName);
+    }
+    return await buildSignedMessage(userName, this.keystore, timeline); 
+  }
+
+  async getTimelineForUserWithKey(userName) {
+    let timeline;
+    if (userName === this.userName) {
+      timeline = this.timeline;
+    } else {
+      timeline = this.following.get(userName);
+    }
+    return await buildMessageWithKey(userName, this.keystore, timeline);
+  }
+
   publishMessage(messageBody) {
     return this.timeline.push({
       message: messageBody,
@@ -40,6 +61,14 @@ export class TimelineModel {
   replaceTimeline(userName, timelineData) {
     if (this.following.has(userName)) {
       this.following.set(userName, timelineData);
+      return true;
+    }
+    return false
+  }
+
+  async replaceTimelineSigned(userName, timelineData) {
+    if (this.following.has(userName)) {
+      this.following.set(userName, await extractSignedMessage(userName, this.keystore, timelineData));
       return true;
     }
     return false
@@ -67,7 +96,7 @@ export class TimelineModel {
     const timelineModelObj = {}
     timelineModelObj.userName = this.userName;
     timelineModelObj.timeline = this.timeline;
-    timelineModelObj.keystore = this.keystore.toJSON();
+    timelineModelObj.keystore = this.keystore.toJSON(true);
     timelineModelObj.following = []
     for (const [key, value] of this.following.entries()) {
       timelineModelObj.following.push({
@@ -81,7 +110,9 @@ export class TimelineModel {
 
   static async fromJSON(jsonStr) {
     const timelineModelObj = JSON.parse(jsonStr);
-    const timelineModel = new TimelineModel(timelineModelObj.userName, await jose.JWK.asKeyStore(timelineModelObj.keystore));
+    const keystore = await jose.JWK.asKeyStore(timelineModelObj.keystore);
+    const timelineModel = new TimelineModel(timelineModelObj.userName, 
+      await jose.JWK.asKeyStore(timelineModelObj.keystore));
     timelineModel.timeline = timelineModelObj.timeline;
     for (const timeline of timelineModelObj.following) {
       timelineModel.following.set(timeline.userName, timeline.timeline);

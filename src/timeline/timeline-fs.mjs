@@ -24,10 +24,10 @@ export const createTimeline = async (configs, logger) => {
     const data = await fsp.readFile(configs.dataPath);
     const timelineModel = await TimelineModel.fromJSON(data);
     const timelineService = new TimelineService(configs, logger, timelineModel);
-    await timelineService.syncTimeline(); // TODO: Might be a bug 
+    await timelineService.syncTimeline(); 
     return timelineService;
-  } catch {
-    const keystore = await createKeyPair();
+  } catch (exception) {
+    const keystore = await createKeyPair(configs.userName);
     return new TimelineService(configs, logger, new TimelineModel(configs.userName, keystore));
   }
 }

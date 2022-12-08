@@ -4,7 +4,9 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "node main.mjs --config-file ./configs/initial-server.json",
+    "start:third": "node main.mjs --config-file ./configs/third-server.json",
+    "start:second": "node main.mjs --config-file ./configs/second-server.json",
+    "start:initial": "node main.mjs --config-file ./configs/initial-server.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,7 +16,6 @@
     "bittorrent-dht": "^10.0.6",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
-    "cryptico": "^1.0.2",
     "express": "^4.18.2",
     "node-jose": "^2.1.1",
     "unix-timestamp": "^1.0.2",

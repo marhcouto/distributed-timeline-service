@@ -1,3 +1,5 @@
+import { buildSignedMessage } from "../auth.mjs";
+
 export class TimelinePropagatorController {
   constructor(app, logger, timelineService) {
     this.produceLog = (message) => {
@@ -21,10 +23,11 @@ export class TimelinePropagatorController {
     res.status(200).send(JSON.stringify({lastUpdated: timelineLastUpdate}));
   }
 
-  _getTimelineRequestHandler(req, res) {
+  async _getTimelineRequestHandler(req, res) {
     const userName = req.params.id;
     this.produceLog(`GET | Timeline: ${userName}`);
-    const timeline = this._timelineService.getTimelineForUser(userName);
+    const timeline = await this._timelineService.getTimelineForUserWithKey(userName);
+    console.log("TIMELINE SENT:", timeline);
     if (!timeline) {
       this.produceLog(`GET | Can't find timeline for ${userName}`);
       res.status(404).end();
@@ -39,11 +42,11 @@ export class TimelinePropagatorController {
     this.produceLog(`GET | Timeline sent for ${userName}`);
   }
 
-  _postTimelineRequestHandler(req, res) {
+  async _postTimelineRequestHandler(req, res) {
     const userName = req.params.id;
     this.produceLog(`POST | Timeline: ${userName}`);
 
-    if (this._timelineService.replaceTimeline(userName, req.body)) {
+    if (await this._timelineService.replaceTimeline(userName, req.body)) {
       this.produceLog(`POST | Received updated timeline for ${userName}`);
       res.status(204).end();
     }
