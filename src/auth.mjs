@@ -21,8 +21,8 @@ export const buildSignedMessage = async (keyName, keystore, message) => {
 
 export const extractSignedMessage = async (keyName, keystore, signedMessage) => {
     const key = await keystore.get(keyName);
-    const message =  await jose.JWS.createVerify(key).verify(signedMessage);
-    return message.payload.toString();
+    const message = await jose.JWS.createVerify(key).verify(signedMessage);
+    return JSON.parse(JSON.parse(message.payload.toString()));
 }
 
 

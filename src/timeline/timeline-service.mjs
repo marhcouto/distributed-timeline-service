@@ -39,13 +39,12 @@ export class TimelineService {
   }
 
   async postNewMessage(message) {
-    const outcome = this._timelineModel.publishMessage(message);
+    const outcome = await this._timelineModel.publishMessage(message);
     await this._propagateTimeline(this._timelineModel.userName);
     return outcome;
   }
 
   async _propagateTimeline(userName) {
-    const signedTimeline = await this._timelineModel.getTimelineForUserSigned(userName);
 
     this._anounceLookupForPeers(userName);
     this._peerFinder.lookup(userName, async (error, nFoundClients) => {
@@ -54,7 +53,7 @@ export class TimelineService {
       }
       for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(userName))) {
         try {
-          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, signedTimeline);
+          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, this._timelineModel.getTimelineForUser(userName));
         } catch (e) {
           if (e.code !== 403) {
             this.produceLog(`Client ${neigh.host}:${neigh.port} rejected timeline update`);
@@ -97,16 +96,15 @@ export class TimelineService {
   }
 
   async replaceTimeline(userName, timelineData) {
-    const timeline = await extractSignedMessage(userName, this._timelineModel.keystore, timelineData);
     if(userName === this._timelineModel.userName) {
       return false;
     }
-
-    const newTimelineLastUpdate = timeline[timeline.length - 1].timestamp;
-    if (newTimelineLastUpdate && newTimelineLastUpdate <= this.timelineLastUpdate(userName)) {
+    const newTimeLineLastPost = await extractSignedMessage(userName, this._timelineModel.keystore, timelineData[timelineData.length - 1]);
+    const newTimelineLastUpdate = newTimeLineLastPost.timestamp;
+    if (newTimelineLastUpdate && newTimelineLastUpdate <= await this.timelineLastUpdate(userName)) {
       return false;
     }
-    this._timelineModel.replaceTimeline(userName, timeline);
+    this._timelineModel.replaceTimeline(userName, timelineData);
     return true;
   }
 
@@ -165,25 +163,34 @@ export class TimelineService {
     return this._timelineModel.getTimelineForUser(userName)
   }
 
-  async getTimelineForUserSigned(userName) {
-    return await this._timelineModel.getTimelineForUserSigned(userName);
-  }
-
   async getTimelineForUserWithKey(userName) {
     return await this._timelineModel.getTimelineForUserWithKey(userName);
   }
 
-  getMergedTimeline() {
-    const mergedTimeline = this._timelineModel.timeline.map((elem) => { return {
-      ...elem,
-      userName: this._timelineModel.userName
-    }});
-    this._timelineModel.following.forEach((v, k) => {
-      mergedTimeline.push(...v.map(elem => { return {
-        ...elem,
-        userName: k
-      }}))
-    })
+  async getMergedTimeline() {
+    const mergedTimeline = [];
+
+    // Own timeline
+    for (let signedPost of this._timelineModel.timeline) {
+      const post = await extractSignedMessage(this._timelineModel.userName,
+       this._timelineModel.keystore, signedPost);
+      mergedTimeline.push({
+        ...post,
+        userName: this._timelineModel.userName
+      });
+    }
+
+    // Followers timeline
+    for (let [k, v] of this._timelineModel.following) {
+      for (let signedPost of v) {
+        const post = await extractSignedMessage(k,
+         this._timelineModel.keystore, signedPost);
+        mergedTimeline.push({
+          ...post,
+          userName: k
+        });
+      }
+    }
     mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
     return mergedTimeline;
   }

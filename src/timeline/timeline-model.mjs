@@ -31,16 +31,6 @@ export class TimelineModel {
     return this.following.get(userName);
   }
 
-  async getTimelineForUserSigned(userName) {
-    let timeline;
-    if (userName === this.userName) {
-      timeline = this.timeline;
-    } else {
-      timeline = this.following.get(userName);
-    }
-    return await buildSignedMessage(userName, this.keystore, timeline); 
-  }
-
   async getTimelineForUserWithKey(userName) {
     let timeline;
     if (userName === this.userName) {
@@ -51,11 +41,13 @@ export class TimelineModel {
     return await buildMessageWithKey(userName, this.keystore, timeline);
   }
 
-  publishMessage(messageBody) {
-    return this.timeline.push({
+  async publishMessage(messageBody) {
+    const message = {
       message: messageBody,
       timestamp: timestamp.now()
-    })
+    };
+    const signedMessage = await buildSignedMessage(this.userName, this.keystore, JSON.stringify(message));
+    return this.timeline.push(signedMessage);
   }
 
   replaceTimeline(userName, timelineData) {
@@ -66,15 +58,7 @@ export class TimelineModel {
     return false
   }
 
-  async replaceTimelineSigned(userName, timelineData) {
-    if (this.following.has(userName)) {
-      this.following.set(userName, await extractSignedMessage(userName, this.keystore, timelineData));
-      return true;
-    }
-    return false
-  }
-
-  lastUpdated(userName) {
+  async lastUpdated(userName) {
     let timeline = null;
     if (userName === this.userName) {
       timeline = this.timeline
@@ -85,11 +69,13 @@ export class TimelineModel {
     if (timeline == null) {
       return null;
     }
+    
     if (timeline.length === 0) {
       return 0;
     }
+    const unwrappedLastPost = await extractSignedMessage(userName, this.keystore, timeline[timeline.length - 1]);
 
-    return timeline[timeline.length - 1].timestamp;
+    return unwrappedLastPost.timestamp;
   }
 
   toJSON() {

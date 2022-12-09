@@ -27,7 +27,6 @@ export class TimelinePropagatorController {
     const userName = req.params.id;
     this.produceLog(`GET | Timeline: ${userName}`);
     const timeline = await this._timelineService.getTimelineForUserWithKey(userName);
-    console.log("TIMELINE SENT:", timeline);
     if (!timeline) {
       this.produceLog(`GET | Can't find timeline for ${userName}`);
       res.status(404).end();
