@@ -28,7 +28,7 @@ export class Logger {
     const logMessage = `${new Date().toISOString()} | ${module} | ${message}`;
     console.log(logMessage);
     if (this.saveLogs) {
-      fs.appendFileSync(this.logFilePath, logMessage);
+      fs.appendFileSync(this.logFilePath, `${logMessage}\n`);
     }
   }
 }

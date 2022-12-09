@@ -12,24 +12,19 @@ export const createKeyPair = async (userName) => {
     return keystore;
 }
 
-export const buildSignedMessage = async (keyName, keystore, message) => {
+export const buildSignedTimeline = async (keyName, keystore, timeline) => {
     const key = await keystore.get(keyName);
     return await jose.JWS.createSign(key).
-      update(JSON.stringify(message)).
+      update(JSON.stringify(timeline)).
       final();
 }
 
-export const extractSignedMessage = async (keyName, keystore, signedMessage) => {
+export const extractSignedTimeline = async (keyName, keystore, signedTimeline) => {
     const key = await keystore.get(keyName);
-    const message = await jose.JWS.createVerify(key).verify(signedMessage);
-    return JSON.parse(JSON.parse(message.payload.toString()));
+    const timeline = await jose.JWS.createVerify(key).verify(signedTimeline);
+    return JSON.parse(timeline.payload.toString('utf-8'));
 }
 
-
-export const buildMessageWithKey = async (keyName, keystore, message) => {
-    const key = await keystore.get(keyName);
-    return {
-        content: message,
-        key: key
-    };
+export const getPublicKey = async (keyName, keystore) => {
+    return await keystore.get(keyName);
 }
