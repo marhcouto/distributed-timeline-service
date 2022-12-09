@@ -108,7 +108,7 @@ export class TimelineService {
   }
 
   updateTimeline(userName) {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this._anounceLookupForPeers(userName);
       this._peerFinder.lookup(userName, async (error, nFoundClients) => {
         if (error || nFoundClients === 0) {
