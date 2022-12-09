@@ -1,17 +1,10 @@
 import CreatePost from '../Components/createPost.js';
 import Post from '../Components/post.js';
+import TopNavbar from '../Components/navbar';
 import { useEffect, useState } from "react";
 import {
-  MDBBtn,
   MDBCard,
-  MDBCardBody,
-  MDBCol,
   MDBContainer,
-  MDBRow,
-  MDBIcon,
-  MDBInput,
-  MDBTypography,
-  MDBCardText,
 } from "mdb-react-ui-kit";
 
 
@@ -35,14 +28,16 @@ function Feed() {
       getFeed();
   }, []);
 
-    return ( 
-      <MDBContainer className="py-5">
-      <MDBCard style={{ width: "48rem" }}>
+    return (
+      <>
+        <TopNavbar />
+        <MDBContainer className="py-5">
+          <MDBCard style={{ width: "48rem" }}>
             <CreatePost />
             <Post postData={feedPosts}/>
           </MDBCard>
-    </MDBContainer>
-
+        </MDBContainer>
+      </> 
     );
 }
 

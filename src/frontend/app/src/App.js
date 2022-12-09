@@ -9,7 +9,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <div>
-      <TopNavbar></TopNavbar>
       <HashRouter>
         <Routes>
           <Route path="/" element={<Feed />} />

@@ -1,5 +1,6 @@
 import Post from '../Components/post';
 import UserCard from '../Components/userCard';
+import TopNavbar from '../Components/navbar';
 import {
     MDBIcon,
     MDBTypography,
@@ -8,7 +9,9 @@ import {
 
 function User() {
     return (
-        <><div className="App">
+        <>
+        <TopNavbar />
+        <div className="App">
             <UserCard></UserCard>
             <div className="d-flex p-3 border-bottom">
             <img
@@ -45,7 +48,8 @@ function User() {
               </div>
             </div>
           </div>
-        </div></>
+        </div>
+        </>
     );
   }
   

@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@mui/material": "^5.10.16",
-    "semantic-ui-react": "^2.1.4"
-  }
-}

@@ -1,6 +1,7 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import { Link } from 'react-router-dom';
 
 function TopNavbar() {
   return (
@@ -11,8 +12,8 @@ function TopNavbar() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/">Feed</Nav.Link>
-            <Nav.Link href="/user">User</Nav.Link>
+            <Link className="nav-link" to="/">Feed</Link>
+            <Link className="nav-link" to="/user">User</Link>
           </Nav>
           </Navbar.Collapse>
         </Container>
