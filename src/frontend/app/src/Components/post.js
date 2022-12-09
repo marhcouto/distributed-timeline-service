@@ -1,16 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {
-  MDBBtn,
-  MDBCard,
-  MDBCardBody,
-  MDBCol,
-  MDBContainer,
-  MDBRow,
   MDBIcon,
-  MDBInput,
   MDBTypography,
-  MDBCardText,
 } from "mdb-react-ui-kit";
 
 Post.propTypes = {

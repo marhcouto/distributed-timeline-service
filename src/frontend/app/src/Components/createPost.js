@@ -3,13 +3,8 @@ import {
     MDBBtn,
     MDBCard,
     MDBCardBody,
-    MDBCol,
-    MDBContainer,
-    MDBRow,
     MDBIcon,
-    MDBInput,
     MDBTypography,
-    MDBCardText,
   } from "mdb-react-ui-kit";
 
 export default function CreatePost(props) {

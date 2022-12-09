@@ -1,16 +1,8 @@
 import Post from '../Components/post';
 import UserCard from '../Components/userCard';
 import {
-    MDBBtn,
-    MDBCard,
-    MDBCardBody,
-    MDBCol,
-    MDBContainer,
-    MDBRow,
     MDBIcon,
-    MDBInput,
     MDBTypography,
-    MDBCardText,
   } from "mdb-react-ui-kit";
 
 
