@@ -1,6 +1,8 @@
 import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
+import jose from 'node-jose';
+import { buildSignedMessage, extractSignedMessage } from '../auth.mjs';
 
 timestamp.round = true;
 
@@ -36,13 +38,14 @@ export class TimelineService {
     return this._timelineModel.unfollowUser(userName);
   }
 
-  postNewMessage(message) {
-    const outcome = this._timelineModel.publishMessage(message);
-    this._propagateTimeline(this._timelineModel.userName);
+  async postNewMessage(message) {
+    const outcome = await this._timelineModel.publishMessage(message);
+    await this._propagateTimeline(this._timelineModel.userName);
     return outcome;
   }
 
-  _propagateTimeline(userName) {
+  async _propagateTimeline(userName) {
+
     this._anounceLookupForPeers(userName);
     this._peerFinder.lookup(userName, async (error, nFoundClients) => {
       if (error || nFoundClients === 0) {
@@ -75,7 +78,7 @@ export class TimelineService {
         for(const neigh of foundPeers) {
           try {
             const timeline = await axios.get(`http://${neigh.host}:${neigh.port}/timeline/${userName}`);
-            this._timelineModel.followUser(userName, timeline.data);
+            this._timelineModel.followUser(userName, timeline.data.content, timeline.data.key);
             this._peerFinder.announce(userName);
             resolve('FOUND_PEER');
             return;
@@ -92,13 +95,13 @@ export class TimelineService {
     return this._timelineModel.lastUpdated(userName);
   }
 
-  replaceTimeline(userName, timelineData) {
+  async replaceTimeline(userName, timelineData) {
     if(userName === this._timelineModel.userName) {
       return false;
     }
-
-    const newTimelineLastUpdate = timelineData[timelineData.length - 1].timestamp;
-    if (newTimelineLastUpdate && newTimelineLastUpdate <= this.timelineLastUpdate(userName)) {
+    const newTimeLineLastPost = await extractSignedMessage(userName, this._timelineModel.keystore, timelineData[timelineData.length - 1]);
+    const newTimelineLastUpdate = newTimeLineLastPost.timestamp;
+    if (newTimelineLastUpdate && newTimelineLastUpdate <= await this.timelineLastUpdate(userName)) {
       return false;
     }
     this._timelineModel.replaceTimeline(userName, timelineData);
@@ -142,35 +145,52 @@ export class TimelineService {
         }
         console.log(mostRecentHost)
         const updatedTimeline = await axios.get(`http://${mostRecentHost.host}:${mostRecentHost.port}/timeline/${userName}`);
-        this._timelineModel.replaceTimeline(userName, updatedTimeline.data);
+        this._timelineModel.replaceTimeline(userName, updatedTimeline.data.content);
         this._peerFinder.announce(userName);
         resolve('DONE_UPDATE');
       })
     })
   }
 
-  syncTimeline() {
+  async syncTimeline() {
     for (const following of this._timelineModel.following.keys()) {
       this.updateTimeline(following);
     }
-    this._propagateTimeline(this._timelineModel.userName);
+    await this._propagateTimeline(this._timelineModel.userName);
   }
 
   getTimelineForUser(userName) {
     return this._timelineModel.getTimelineForUser(userName)
   }
 
-  getMergedTimeline() {
-    const mergedTimeline = this._timelineModel.timeline.map((elem) => { return {
-      ...elem,
-      userName: this._timelineModel.userName
-    }});
-    this._timelineModel.following.forEach((v, k) => {
-      mergedTimeline.push(...v.map(elem => { return {
-        ...elem,
-        userName: k
-      }}))
-    })
+  async getTimelineForUserWithKey(userName) {
+    return await this._timelineModel.getTimelineForUserWithKey(userName);
+  }
+
+  async getMergedTimeline() {
+    const mergedTimeline = [];
+
+    // Own timeline
+    for (let signedPost of this._timelineModel.timeline) {
+      const post = await extractSignedMessage(this._timelineModel.userName,
+       this._timelineModel.keystore, signedPost);
+      mergedTimeline.push({
+        ...post,
+        userName: this._timelineModel.userName
+      });
+    }
+
+    // Followers timeline
+    for (let [k, v] of this._timelineModel.following) {
+      for (let signedPost of v) {
+        const post = await extractSignedMessage(k,
+         this._timelineModel.keystore, signedPost);
+        mergedTimeline.push({
+          ...post,
+          userName: k
+        });
+      }
+    }
     mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
     return mergedTimeline;
   }

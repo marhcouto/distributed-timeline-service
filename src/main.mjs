@@ -3,8 +3,9 @@ import yargs from 'yargs';
 import { isIPv4 } from 'net';
 import { hideBin } from 'yargs/helpers';
 import { startTimelineServer } from './timeline/timeline-server.mjs';
-import { createTimeline, saveTimeline } from './timeline/timeline-fs.mjs';
+import { createTimeline, saveTimeline, saveTimelineSync } from './timeline/timeline-fs.mjs';
 import { Logger } from './utils/logging.mjs';
+import { createKeyPair } from './auth.mjs';
 
 const validArguments = ['peerFinderPort', 'timelineServerPort', 'bootstrapNodes', 'dataPath', 'userName', 'logPath'];
 

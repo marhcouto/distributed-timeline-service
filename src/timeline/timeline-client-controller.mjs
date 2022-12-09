@@ -11,9 +11,10 @@ export class TimelineClientController {
     app.get('/api/timeline', this._getTimeline.bind(this));
   }
 
-  _getTimeline(_, rep) {
+  async _getTimeline(_, rep) {
     this.produceLog('GET | Timeline');
-    rep.status(200).send(this._timelineService.getMergedTimeline());
+    const response = await this._timelineService.getMergedTimeline(); 
+    rep.status(200).send(response);
   }
 
   _postNewMessage(req, rep) {
