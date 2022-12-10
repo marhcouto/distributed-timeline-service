@@ -151,7 +151,11 @@ export class TimelineService {
 
   async syncTimeline() {
     for (const following of this._timelineModel.following.keys()) {
-      this.updateTimeline(following);
+      try {
+        await this.updateTimeline(following);
+      } catch(e) {
+        console.error(e);
+      }
     }
     await this._propagateTimeline(this._timelineModel.userName);
   }
@@ -195,12 +199,22 @@ export class TimelineService {
   }
 
   async getMergedTimeline() {
-    const mergedTimeline = [...this._timelineModel.timeline];
+    const mergedTimeline = this._timelineModel.timeline.map((post) => {
+      return {
+        ...post,
+        userName: this._timelineModel.userName 
+      }
+    });
 
     // Followers timeline
     for (let [k, _] of this._timelineModel.following) {
       const timeline = await this.getTimelineForUser(k);
-      mergedTimeline.push(...timeline)
+      mergedTimeline.push(...timeline.map((post) => {
+        return {
+          ...post,
+          userName: k
+        }
+      }));
     }
     mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
     return mergedTimeline;
