@@ -43,6 +43,10 @@ export class TimelineClientController {
 
   _postNewMessage(req, rep) {
     const body = req.body;
+    if (body.message.length === 0) {
+      rep.status(400).end();
+      return;
+    }
     this.produceLog(`POST | Message: ${JSON.stringify(body.message)}`);
     this._timelineService.postNewMessage(body.message);
     rep.status(204).end();
