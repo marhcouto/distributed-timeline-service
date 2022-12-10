@@ -165,6 +165,7 @@ export class TimelineService {
   }
 
   getTimelineForRemoteUser(userName) {
+    if (userName === this._timelineModel.userName) return this._timelineModel.getTimelineForUser(userName);
     return new Promise((resolve, reject) => {
       this._anounceLookupForPeers(userName);
       this._peerFinder.lookup(userName, async (error, nFoundClients) => {
