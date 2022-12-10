@@ -5,6 +5,7 @@ export class TimelineClientController {
       logger.log('TCC', message);
     }
 
+    app.get('/api/identity', this._getIdentity.bind(this));
     app.post('/api/following/:id', this._followUser.bind(this));
     app.post('/api/timeline', this._postNewMessage.bind(this));
     app.delete('/api/following/:id', this._unfollowUser.bind(this));
@@ -13,12 +14,17 @@ export class TimelineClientController {
     app.get('/api/timeline/:id', this._getTimelineForUser.bind(this));
   }
 
+  _getIdentity(_, rep) {
+    rep.status(200).json({id: this._timelineService._timelineModel.userName});
+  }
+
   async _getTimelineForUser(req, rep) {
     const userName = req.params.id;
     try {
       const remoteTimeline = await this._timelineService.getTimelineForRemoteUser(userName);
       rep.status(200).json(remoteTimeline).end();
-    } catch {
+    } catch(e) {
+      console.error(e);
       rep.status(404).end();
     }
   }
