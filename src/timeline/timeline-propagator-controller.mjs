@@ -58,7 +58,7 @@ export class TimelinePropagatorController {
 
   async _getTimelinePublicKey(req, res) {
     const userName = req.params.id;
-    const timelineKey = await this._timelineService.getPublicKey(userName);
+    const timelineKey = await this._timelineModel.getPublicKey(userName);
     if (timelineKey) {
       res.status(200).send(timelineKey.toJSON()).end();
     }

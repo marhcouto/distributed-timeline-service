@@ -1,7 +1,6 @@
 import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
-import { extractSignedTimeline, getPublicKey } from '../auth.mjs';
 
 timestamp.round = true;
 
@@ -181,10 +180,6 @@ export class TimelineService {
         return;
       })
     })
-  }
-
-  async getPublicKey(userName) {
-    return await getPublicKey(userName, this._timelineModel.keystore);
   }
 
   async getMergedTimeline() {
