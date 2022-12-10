@@ -33,9 +33,11 @@ export const createTimeline = async (configs, logger) => {
     const timelineModel = await TimelineModel.fromPOJSO(data.timelineModel);
     const timelineService = new TimelineService(configs, logger, timelineModel, data.kademliaModel.nodes);
     await timelineService.syncTimeline(); 
-    return timelineService;
+    return [timelineService, timelineModel];
   } catch (exception) {
     const keystore = await createKeyPair(configs.userName);
-    return new TimelineService(configs, logger, new TimelineModel(configs.userName, keystore));
+    const timelineModel = new TimelineModel(configs.userName, keystore);
+    const timelineService = new TimelineService(configs, logger, timelineModel);  
+    return [timelineService, timelineModel];
   }
 }

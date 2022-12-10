@@ -1,6 +1,7 @@
 export class TimelineClientController {
-  constructor(app, logger, timelineService) {
+  constructor(app, logger, timelineService, timelineModel) {
     this._timelineService = timelineService;
+    this._timelineModel = timelineModel;
     this.produceLog = (message) => {
       logger.log('TCC', message);
     }
