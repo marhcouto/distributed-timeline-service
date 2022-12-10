@@ -17,11 +17,23 @@ export default function CreatePost(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        
-        //todo post
+        console.log(JSON.stringify({message: postText}))
+        fetch('http://localhost:5000/api/timeline',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            },
+          body: JSON.stringify({message: postText})
+        }).then(res =>{
+          console.log(res)
+        }).catch(err => {
+          console.log(err)
+        })
+
       }
 
     return (
+      <form onSubmit={handleSubmit}>
         <div className="border border-left border-right px-0">
           <div className="p-3 border-bottom">
             <h4 className="d-flex align-items-center mb-0">
@@ -52,6 +64,7 @@ export default function CreatePost(props) {
                       id="form1"
                       className="form-control form-status border-0 py-1 px-0"
                       placeholder="What's happening"
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
@@ -89,11 +102,12 @@ export default function CreatePost(props) {
                   </li>
                 </MDBTypography>
                 <div className="d-flex align-items-center">
-                  <MDBBtn rounded>Honk</MDBBtn>
+                  <MDBBtn type="submit" rounded>Honk</MDBBtn>
                 </div>
               </div>
             </MDBCardBody>
           </MDBCard>
-          </div>
+        </div>
+      </form>
     );
 }
