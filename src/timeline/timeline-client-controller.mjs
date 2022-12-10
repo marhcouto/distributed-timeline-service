@@ -11,7 +11,7 @@ export class TimelineClientController {
     app.post('/api/following/:id', this._followUser.bind(this));
     app.post('/api/timeline', this._postNewMessage.bind(this));
     app.delete('/api/following/:id', this._unfollowUser.bind(this));
-    app.get('/api/timeline', this._getTimeline.bind(this));
+    app.get('/api/timeline', this._getUserFeed.bind(this));
     app.get('/api/timeline/sync', this._syncTimeline.bind(this));
     app.get('/api/timeline/:id', this._getTimelineForUser.bind(this));
   }
