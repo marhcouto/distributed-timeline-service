@@ -25,6 +25,7 @@ function Feed() {
 
     const getFeed = async () => {
       try{
+        console.log("repeat")
         const resTimeline = await fetch('http://localhost:5000/api/timeline')
         setFeedPosts((await resTimeline.json()));    
       }
@@ -38,12 +39,13 @@ function Feed() {
       getFeed();
   }, []);
 
+
     return (
       <>
-        <TopNavbar />
+        <TopNavbar id={id} />
         <MDBContainer className="py-5">
           <MDBCard style={{ width: "48rem" }}>
-            <CreatePost id={id}/>
+            <CreatePost id={id} onSubmit={() => getFeed()}/>
             {feedPosts.map((post, index) => (
               <Post postData={post} key={index}/>
             ))}

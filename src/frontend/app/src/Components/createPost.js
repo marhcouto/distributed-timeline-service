@@ -23,13 +23,14 @@ export default function CreatePost(props) {
           headers: {
             'Content-Type': 'application/json',
             },
-          body: JSON.stringify({message: postText})
-        }).then(res =>{
-          console.log(res)
+          body: JSON.stringify({message: postText})           
+        }).then(res =>{     
+          setPostText("");
+          props.onSubmit();
+          
         }).catch(err => {
           console.log(err)
         })
-
       }
 
     return (
@@ -65,6 +66,7 @@ export default function CreatePost(props) {
                       className="form-control form-status border-0 py-1 px-0"
                       placeholder="What's happening"
                       onChange={handleChange}
+                      value={postText}
                     />
                   </div>
                 </div>
@@ -99,7 +101,7 @@ export default function CreatePost(props) {
                     <a href="#!">
                       <MDBIcon far icon="calendar-check" className="px-2" />
                     </a>
-                  </li>
+                  </li>                 
                 </MDBTypography>
                 <div className="d-flex align-items-center">
                   <MDBBtn type="submit" rounded>Honk</MDBBtn>

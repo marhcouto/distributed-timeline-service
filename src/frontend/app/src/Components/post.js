@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Link } from 'react-router-dom';
 import {
   MDBIcon,
   MDBTypography,
@@ -25,7 +26,7 @@ export default function Post(props) {
         />
         <div className="d-flex w-100 ps-3">
           <div>
-            <a href="#!">
+            <Link className="nav-link" to={`/user/${post.userName}`} >
               <h6 className="text-body">
                 @{post.userName}
                 <span className="small text-muted font-weight-normal me-1">
@@ -38,7 +39,7 @@ export default function Post(props) {
                   <MDBIcon fas icon="angle-down" className="float-end" />
                 </span>
               </h6>
-            </a>
+            </Link>
             <p style={{ lineHeight: "1.2" }}>
               {post.message}
             </p>

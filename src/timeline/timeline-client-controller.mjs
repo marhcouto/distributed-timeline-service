@@ -1,20 +1,33 @@
 export class TimelineClientController {
-  constructor(app, logger, timelineService) {
+  constructor(app, logger, timelineService, timelineModel) {
     this._timelineService = timelineService;
+    this._timelineModel = timelineModel;
     this.produceLog = (message) => {
       logger.log('TCC', message);
     }
 
     app.get('/api/identity', this._getIdentity.bind(this));
+    app.get('/api/following/:id', this._followUser.bind(this));
     app.post('/api/following/:id', this._followUser.bind(this));
     app.post('/api/timeline', this._postNewMessage.bind(this));
     app.delete('/api/following/:id', this._unfollowUser.bind(this));
-    app.get('/api/timeline', this._getTimeline.bind(this));
+    app.get('/api/timeline', this._getUserFeed.bind(this));
     app.get('/api/timeline/sync', this._syncTimeline.bind(this));
     app.get('/api/timeline/:id', this._getTimelineForUser.bind(this));
   }
 
-  async _getIdentity(_, rep) {
+
+  
+  _followingUser(req, rep) {
+    const userName = req.id;
+    if (this._timelineModel.following.has(userName)) {
+      rep.status(204).end();
+      return;
+    }
+    rep.status(404).end();
+  }
+
+  _getIdentity(_, rep) {
     this.produceLog(`GET | Identity: ${this._timelineService._timelineModel.userName}`);
     rep.status(200).json({id: this._timelineService._timelineModel.userName});
   }
@@ -35,14 +48,18 @@ export class TimelineClientController {
     rep.status(204).end();
   }
 
-  async _getTimeline(_, rep) {
+  async _getUserFeed(_, rep) {
     this.produceLog('GET | Timeline');
-    const response = await this._timelineService.getMergedTimeline(); 
+    const response = await this._timelineService.getUserFeed(); 
     rep.status(200).send(response);
   }
 
   _postNewMessage(req, rep) {
     const body = req.body;
+    if (body.message.length === 0) {
+      rep.status(400).end();
+      return;
+    }
     this.produceLog(`POST | Message: ${JSON.stringify(body.message)}`);
     this._timelineService.postNewMessage(body.message);
     rep.status(204).end();

@@ -1,7 +1,6 @@
 import timestamp from 'unix-timestamp';
 import axios from 'axios';
 import { PeerFinder } from '../peer-finder.mjs';
-import { extractSignedTimeline, getPublicKey } from '../auth.mjs';
 
 timestamp.round = true;
 
@@ -90,17 +89,13 @@ export class TimelineService {
     })
   }
 
-  async timelineLastUpdate(userName) {
-    return await this._timelineModel.lastUpdated(userName);
-  }
-
   async replaceTimeline(userName, timelineData) {
     if(userName === this._timelineModel.userName) {
       return false;
     }
-    const timeline = await this.getTimelineForUser(userName);
+    const timeline = await this._timelineModel.getTimelineForUser(userName);
     const newTimelineLastUpdate = timeline[timeline.length - 1].timestamp;
-    if (newTimelineLastUpdate && newTimelineLastUpdate <= await this.timelineLastUpdate(userName)) {
+    if (newTimelineLastUpdate && newTimelineLastUpdate <= await this._timelineModel.lastUpdated(userName)) {
       return false;
     }
     this._timelineModel.replaceTimeline(userName, timelineData);
@@ -160,10 +155,6 @@ export class TimelineService {
     await this._propagateTimeline(this._timelineModel.userName);
   }
 
-  getTimelineForUser(userName) {
-    return this._timelineModel.getTimelineForUser(userName)
-  }
-
   getTimelineForRemoteUser(userName) {
     if (userName === this._timelineModel.userName) return this._timelineModel.getTimelineForUser(userName);
     return new Promise((resolve, reject) => {
@@ -191,15 +182,7 @@ export class TimelineService {
     })
   }
 
-  getSignedTimelineForUser(userName) {
-    return this._timelineModel.getSignedTimelineForUser(userName);
-  }
-
-  async getPublicKey(userName) {
-    return await getPublicKey(userName, this._timelineModel.keystore);
-  }
-
-  async getMergedTimeline() {
+  async getUserFeed() {
     const mergedTimeline = this._timelineModel.timeline.map((post) => {
       return {
         ...post,
@@ -209,7 +192,7 @@ export class TimelineService {
 
     // Followers timeline
     for (let [k, _] of this._timelineModel.following) {
-      const timeline = await this.getTimelineForUser(k);
+      const timeline = await this._timelineModel.getTimelineForUser(k);
       mergedTimeline.push(...timeline.map((post) => {
         return {
           ...post,

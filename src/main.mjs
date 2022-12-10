@@ -90,7 +90,7 @@ const main = async () => {
   configs.disableBackups = argv.disableBackups;
   
   const logger = await Logger.createLogger(configs);
-  const timelineService = await createTimeline(configs, logger);
+  const [timelineService, timelineModel] = await createTimeline(configs, logger);
 
   const backupJob = async () => {
     await saveTimeline(configs, timelineService._timelineModel, timelineService.dhtJSON());
@@ -109,7 +109,7 @@ const main = async () => {
     process.exit()
   })
 
-  startTimelineServer(configs, logger, timelineService);
+  startTimelineServer(configs, logger, timelineService, timelineModel);
 }
 
 main()

@@ -1,9 +1,10 @@
 export class TimelinePropagatorController {
-  constructor(app, logger, timelineService) {
+  constructor(app, logger, timelineService, timelineModel) {
     this.produceLog = (message) => {
       logger.log('TPC', message);
     }
     this._timelineService = timelineService;
+    this._timelineModel = timelineModel;
 
     app.get('/timeline/:id', this._getTimelineRequestHandler.bind(this));
     app.put('/timeline/:id', this._postTimelineRequestHandler.bind(this));
@@ -14,7 +15,7 @@ export class TimelinePropagatorController {
   async _getTimelineLastUpdateHandler(req, res) {
     const userName = req.params.id;
     this.produceLog(`GET | Last update: ${userName}`);
-    const timelineLastUpdate = await this._timelineService.timelineLastUpdate(userName);
+    const timelineLastUpdate = await this._timelineModel.lastUpdated(userName);
     if (timelineLastUpdate == null) {
       res.status(404).end();
       return;
@@ -27,8 +28,8 @@ export class TimelinePropagatorController {
     const unsigned = req.query.unsigned;
     this.produceLog(`GET | Timeline: ${userName}`);
     const timeline = unsigned ? 
-      await this._timelineService.getTimelineForUser(userName) :
-      await this._timelineService.getSignedTimelineForUser(userName);
+      await this._timelineService._timelineModel.getTimelineForUser(userName) :
+      await this._timelineService._timelineModel.getSignedTimelineForUser(userName);
     if (!timeline) {
       this.produceLog(`GET | Can't find timeline for ${userName}`);
       res.status(404).end();
@@ -57,7 +58,7 @@ export class TimelinePropagatorController {
 
   async _getTimelinePublicKey(req, res) {
     const userName = req.params.id;
-    const timelineKey = await this._timelineService.getPublicKey(userName);
+    const timelineKey = await this._timelineModel.getPublicKey(userName);
     if (timelineKey) {
       res.status(200).send(timelineKey.toJSON()).end();
     }
