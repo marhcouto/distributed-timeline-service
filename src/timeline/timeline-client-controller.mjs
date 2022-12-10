@@ -35,9 +35,9 @@ export class TimelineClientController {
     rep.status(204).end();
   }
 
-  async _getTimeline(_, rep) {
+  async _getUserFeed(_, rep) {
     this.produceLog('GET | Timeline');
-    const response = await this._timelineService.getMergedTimeline(); 
+    const response = await this._timelineService.getUserFeed(); 
     rep.status(200).send(response);
   }
 

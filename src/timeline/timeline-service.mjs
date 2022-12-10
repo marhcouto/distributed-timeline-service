@@ -182,7 +182,7 @@ export class TimelineService {
     })
   }
 
-  async getMergedTimeline() {
+  async getUserFeed() {
     const mergedTimeline = this._timelineModel.timeline.map((post) => {
       return {
         ...post,
