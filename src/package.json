@@ -7,6 +7,7 @@
     "start:third": "node main.mjs --config-file ./configs/third-server.json",
     "start:second": "node main.mjs --config-file ./configs/second-server.json",
     "start:initial": "node main.mjs --config-file ./configs/initial-server.json",
+    "swagger-autogen": "node swagger.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -19,6 +20,8 @@
     "express": "^4.18.2",
     "node-jose": "^2.1.1",
     "unix-timestamp": "^1.0.2",
-    "yargs": "^17.6.2"
+    "yargs": "^17.6.2",
+    "swagger-autogen": "^2.22.0",
+    "swagger-ui-express": "^4.1.4"
   }
 }
