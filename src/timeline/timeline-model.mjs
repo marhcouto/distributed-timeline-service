@@ -68,12 +68,12 @@ export class TimelineModel {
     return timeline[timeline.length - 1].timestamp;
   }
 
-  toJSON() {
+  toPOJSO() {
     const timelineModelObj = {}
     timelineModelObj.userName = this.userName;
     timelineModelObj.timeline = this.timeline;
     timelineModelObj.keystore = this.keystore.toJSON(true);
-    timelineModelObj.following = []
+    timelineModelObj.following = [];
     for (const [key, value] of this.following.entries()) {
       timelineModelObj.following.push({
         userName: key,
@@ -81,11 +81,10 @@ export class TimelineModel {
       })
     }
 
-    return JSON.stringify(timelineModelObj);
+    return timelineModelObj;
   }
 
-  static async fromJSON(jsonStr) {
-    const timelineModelObj = JSON.parse(jsonStr);
+  static async fromPOJSO(timelineModelObj) {
     const timelineModel = new TimelineModel(
       timelineModelObj.userName, 
       await jose.JWK.asKeyStore(timelineModelObj.keystore)

@@ -93,7 +93,7 @@ const main = async () => {
   const timelineService = await createTimeline(configs, logger);
 
   const backupJob = async () => {
-    await saveTimeline(configs, timelineService._timelineModel);
+    await saveTimeline(configs, timelineService._timelineModel, timelineService.dhtJSON());
     setTimeout(() => {
       backupJob()
     }, 5000);
@@ -104,7 +104,7 @@ const main = async () => {
   }
   process.on('SIGINT', () => {
     if (!configs.disableBackups) {
-      saveTimelineSync(configs, timelineService._timelineModel);
+      saveTimelineSync(configs, timelineService._timelineModel, timelineService.dhtJSON());
     }
     process.exit()
   })

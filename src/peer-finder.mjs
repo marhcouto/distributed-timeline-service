@@ -9,7 +9,7 @@ export class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
 
-  constructor(configs, logger, onPeerFound) {
+  constructor(configs, logger, onPeerFound, previouslyKnownNodes) {
     this.timelineServerPort = configs.timelineServerPort;
 
     this.produceLog = (message) => {
@@ -50,6 +50,14 @@ export class PeerFinder {
     this._dht.on('warning', (err) =>
       this.produceLog(`Received warning: ${err}`)
     );
+
+    this._dht.on('ready', () => {
+      if (previouslyKnownNodes) {
+        previouslyKnownNodes.forEach(node => {
+          this._dht.addNode(node);
+        });
+      }
+    })
   }
 
   hash(str) {
@@ -61,7 +69,7 @@ export class PeerFinder {
     setTimeout(() => {
       this.announce(userTag);
     }, REFRESH_TIME);
-    return this._dht.announce(this.hash(userTag), this.timelineServerPort);
+    return this.lookup(userTag, () => this._dht.announce(this.hash(userTag), this.timelineServerPort));
   }
 
   lookup(userTag, onLookupFinishedCallback) {

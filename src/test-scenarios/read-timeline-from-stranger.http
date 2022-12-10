@@ -1,0 +1,11 @@
+POST http://localhost:5001/api/timeline HTTP/1.1
+content-type: application/json
+
+{
+    "message": "Hello world, from node 2!"
+}
+
+###
+GET http://localhost:5000/api/timeline/marhcouto HTTP/1.1
+
+

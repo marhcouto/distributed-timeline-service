@@ -6,10 +6,10 @@ import { extractSignedTimeline, getPublicKey } from '../auth.mjs';
 timestamp.round = true;
 
 export class TimelineService {
-  constructor(configs, logger, timelineModel) {
+  constructor(configs, logger, timelineModel, previouslyKnownNodes) {
     this._timelineModel = timelineModel;
 
-    this._peerFinder = new PeerFinder(configs, logger, this._onPeerFound.bind(this));
+    this._peerFinder = new PeerFinder(configs, logger, this._onPeerFound.bind(this), previouslyKnownNodes);
     this._pendingPeerFetch = new Map();
 
     this.produceLog = (message) => {
@@ -204,5 +204,9 @@ export class TimelineService {
     }
     mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
     return mergedTimeline;
+  }
+
+  dhtJSON() {
+    return this._peerFinder._dht.toJSON();
   }
 }
