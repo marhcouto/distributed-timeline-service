@@ -37,7 +37,7 @@ export default function CreatePost(props) {
         <div className="border border-left border-right px-0">
           <div className="p-3 border-bottom">
             <h4 className="d-flex align-items-center mb-0">
-              Home
+              Hello @{props.id}!
               <MDBIcon
                 far
                 icon="star"

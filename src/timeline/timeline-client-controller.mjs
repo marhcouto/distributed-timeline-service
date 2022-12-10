@@ -14,7 +14,8 @@ export class TimelineClientController {
     app.get('/api/timeline/:id', this._getTimelineForUser.bind(this));
   }
 
-  _getIdentity(_, rep) {
+  async _getIdentity(_, rep) {
+    this.produceLog(`GET | Identity: ${this._timelineService._timelineModel.userName}`);
     rep.status(200).json({id: this._timelineService._timelineModel.userName});
   }
 

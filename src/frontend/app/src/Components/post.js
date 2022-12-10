@@ -6,16 +6,16 @@ import {
 } from "mdb-react-ui-kit";
 
 Post.propTypes = {
-    postData: PropTypes.array,
+    postData: PropTypes.object,
   };
 
 export default function Post(props) {
-    const postD = props.postData;
+    const post = props.postData;
+    const createdAt = new Date(post.timestamp*1000).toString().slice(0, 24);
 
     return (
-      <div>
-      {postD.map((p) => (
-        <div key={p.user} className="d-flex p-3 border-bottom">
+      <div>    
+        <div className="d-flex p-3 border-bottom">
         <img
           src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (29).webp"
           className="rounded-circle"
@@ -27,12 +27,12 @@ export default function Post(props) {
           <div>
             <a href="#!">
               <h6 className="text-body">
-                @{p.user}
+                @{post.userName}
                 <span className="small text-muted font-weight-normal me-1">
                   •
                 </span>
                 <span className="small text-muted font-weight-normal me-1">
-                  {p.createdAt}
+                  {createdAt}
                 </span>
                 <span>
                   <MDBIcon fas icon="angle-down" className="float-end" />
@@ -40,7 +40,7 @@ export default function Post(props) {
               </h6>
             </a>
             <p style={{ lineHeight: "1.2" }}>
-              {p.text}
+              {post.message}
             </p>
             <MDBTypography
               listUnStyled
@@ -50,7 +50,6 @@ export default function Post(props) {
           </div>
         </div>
       </div>
-    ))}
     </div>
     );
 

@@ -1,6 +1,7 @@
 import Post from '../Components/post';
 import UserCard from '../Components/userCard';
 import TopNavbar from '../Components/navbar';
+import { useEffect, useState } from "react";
 import {
     MDBIcon,
     MDBTypography,
@@ -8,46 +9,45 @@ import {
 
 
 function User() {
+
+    const [id, setId] = useState("");
+    const [userTimeline, setUserTimeline] = useState([]);
+
+    const getId = async() => {
+      try{
+        const resId = await fetch('http://localhost:5000/api/identity')
+        setId((await resId.json()).id);    
+      }
+      catch(err){
+        console.log(err)
+      }       
+    }
+
+    const getUserTimeline = async () => {
+      try{
+        const resTimeline = await fetch('http://localhost:5000/api/timeline/' + id)
+        setUserTimeline((await resTimeline.json()));    
+      }
+      catch(err){
+        console.log(err)
+      }    
+    }
+
+
+
+    useEffect(() => {
+      getId();
+      getUserTimeline();
+  }, []);
+
     return (
         <>
         <TopNavbar />
         <div className="App">
-            <UserCard></UserCard>
-            <div className="d-flex p-3 border-bottom">
-            <img
-              src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (29).webp"
-              className="rounded-circle"
-              height="50"
-              alt="Avatar"
-              loading="lazy"
-            />
-            <div className="d-flex w-100 ps-3">
-              <div>
-                <a href="#!">
-                  <h6 className="text-body">
-                    @MIguel
-                    <span className="small text-muted font-weight-normal me-1">
-                      •
-                    </span>
-                    <span className="small text-muted font-weight-normal me-1">
-                    02/12/2022 15:05
-                    </span>
-                    <span>
-                      <MDBIcon fas icon="angle-down" className="float-end" />
-                    </span>
-                  </h6>
-                </a>
-                <p style={{ lineHeight: "1.2" }}>
-                grande golo de portugal!
-                </p>
-                <MDBTypography
-                  listUnStyled
-                  className="d-flex justify-content-between mb-0 pe-xl-5"
-                >
-                </MDBTypography>
-              </div>
-            </div>
-          </div>
+            <UserCard id={id}></UserCard>
+            {userTimeline.map((post, index) => (
+              <Post postData={post} key={index}/>
+            ))}
         </div>
         </>
     );
