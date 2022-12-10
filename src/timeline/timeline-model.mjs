@@ -1,5 +1,5 @@
 import timestamp from 'unix-timestamp';
-import { buildSignedTimeline, extractSignedTimeline } from '../auth.mjs';
+import { buildSignedTimeline, extractSignedTimeline, getPublicKey } from '../auth.mjs';
 import jose from 'node-jose';
 
 timestamp.round = true;
@@ -38,6 +38,10 @@ export class TimelineModel {
       timestamp: timestamp.now()
     };
     return this.timeline.push(message);
+  }
+
+  async getPublicKey(userName) {
+    return await getPublicKey(userName, this._timelineModel.keystore);
   }
 
   async getSignedTimelineForUser(userName) {

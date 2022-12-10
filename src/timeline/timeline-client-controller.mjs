@@ -1,6 +1,7 @@
 export class TimelineClientController {
-  constructor(app, logger, timelineService) {
+  constructor(app, logger, timelineService, timelineModel) {
     this._timelineService = timelineService;
+    this._timelineModel = timelineModel;
     this.produceLog = (message) => {
       logger.log('TCC', message);
     }
@@ -34,14 +35,18 @@ export class TimelineClientController {
     rep.status(204).end();
   }
 
-  async _getTimeline(_, rep) {
+  async _getUserFeed(_, rep) {
     this.produceLog('GET | Timeline');
-    const response = await this._timelineService.getMergedTimeline(); 
+    const response = await this._timelineService.getUserFeed(); 
     rep.status(200).send(response);
   }
 
   _postNewMessage(req, rep) {
     const body = req.body;
+    if (body.message.length === 0) {
+      rep.status(400).end();
+      return;
+    }
     this.produceLog(`POST | Message: ${JSON.stringify(body.message)}`);
     this._timelineService.postNewMessage(body.message);
     rep.status(204).end();
