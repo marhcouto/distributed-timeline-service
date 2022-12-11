@@ -15,7 +15,7 @@ Both our frontend and our backend were developed in Javascript. To run Javascrip
 
 ## Run the frontend
 
-To run our frontend directly run the following steps need to be taken:
+To run our frontend directly, run the following steps need to be taken:
 
 Installation of dependencies:
 ```
@@ -37,7 +37,7 @@ Firstly the needed dependencies must be installed:
 npm install
 ```
 
-## Pre-configured nodes
+### Pre-configured nodes
 
 We have prepared three backend nodes that are called respectively: initial, second and third they can be ran with the following commands:
 
@@ -55,7 +55,7 @@ npm run start:third
 
 Keep in mind that the nodes called initial and second use node third as bootstrap so the latter must be started first.
 
-## User configured nodes
+### User configured nodes
 
 The user can configure it's own node by providing a JSON configuration files as command line arguments.
 To use that configuration file the user must launch our backend using the following command:
@@ -69,7 +69,7 @@ More options can be found by calling our backed with the following argument:
 node main.mjs -h
 ```
 
-### Configuration file syntax
+#### Configuration file syntax
 
 The configuration JSON has the following parameters:
 
