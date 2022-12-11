@@ -7,7 +7,7 @@
     "start:third": "node main.mjs --config-file ./configs/third-server.json",
     "start:second": "node main.mjs --config-file ./configs/second-server.json",
     "start:initial": "node main.mjs --config-file ./configs/initial-server.json",
-    "swagger-autogen": "node swagger.js",
+    "swagger-autogen": "node ./api/swagger.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
