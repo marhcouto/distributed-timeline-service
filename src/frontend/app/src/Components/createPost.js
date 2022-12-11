@@ -18,7 +18,7 @@ export default function CreatePost(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(JSON.stringify({message: postText}))
-        fetch('http://localhost:5000/api/timeline',{
+        fetch(`${window.location.origin}/api/timeline`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

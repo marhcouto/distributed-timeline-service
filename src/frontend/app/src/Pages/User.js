@@ -16,7 +16,8 @@ function User() {
 
     const getFollowing = async () => {
       try{
-        const resFollow = await fetch(`http://localhost:5000/api/following/` + id)
+        console.log("Did call!")
+        const resFollow = await fetch(`${window.location.origin}/api/following/` + id)
         if (resFollow.ok) setFollowing(true);
         else setFollowing(false);
       }
@@ -27,7 +28,7 @@ function User() {
 
     const getUserTimeline = async () => {
       try{
-        const resTimeline = await fetch('http://localhost:5000/api/timeline/' + id)
+        const resTimeline = await fetch(`${window.location.origin}/api/timeline/` + id)
         setUserTimeline((await resTimeline.json()));    
       }
       catch(err){
@@ -35,9 +36,9 @@ function User() {
       }    
     }
 
-    const handleClick = (event) => {
-      if (following){
-        fetch('http://localhost:5000/api/following/' + id,{
+    const handleClick = (_) => {
+      if (following) {
+        fetch(`${window.location.origin}/api/following/${id}`, {
               method: 'DELETE',        
             }).then(res =>{
               console.log(res)
@@ -46,7 +47,7 @@ function User() {
             })
       }   
       else{
-        fetch('http://localhost:5000/api/following/' + id,{
+        fetch(`${window.location.origin}/api/following/${id}`, {
               method: 'POST',        
             }).then(res =>{
               console.log(res)
@@ -59,10 +60,10 @@ function User() {
     }
 
     useEffect(() => {
-      (async () => {      
-         await getUserTimeline();
-         await getFollowing();
-      })()}, []);
+      console.log("Did effect!")
+      getUserTimeline();
+      getFollowing();
+    }, [id]);
 
     return (
         <>

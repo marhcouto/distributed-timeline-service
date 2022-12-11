@@ -7,7 +7,7 @@ export class TimelineClientController {
     }
 
     app.get('/api/identity', this._getIdentity.bind(this));
-    app.get('/api/following/:id', this._followUser.bind(this));
+    app.get('/api/following/:id', this._followingUser.bind(this));
     app.post('/api/following/:id', this._followUser.bind(this));
     app.post('/api/timeline', this._postNewMessage.bind(this));
     app.delete('/api/following/:id', this._unfollowUser.bind(this));

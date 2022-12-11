@@ -12,7 +12,7 @@ export const startTimelineServer = (configs, logger, timelineService, timelineMo
   app.use(express.static('public/'));
 
   new TimelinePropagatorController(app, logger, timelineService, timelineModel);
-  new TimelineClientController(app, logger, timelineService);
+  new TimelineClientController(app, logger, timelineService, timelineModel);
 
   app.listen(configs.timelineServerPort, () => {
     logger.log('TS', `Listening for requests at port ${configs.timelineServerPort}`)

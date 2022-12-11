@@ -9,7 +9,7 @@ export class PeerFinder {
   hashVersion = 'sha1';
   digestType = 'hex';
 
-  constructor(configs, logger, onPeerFound, previouslyKnownNodes) {
+  constructor(configs, logger, onPeerFound, previouslyKnownNodes, onReady) {
     this.timelineServerPort = configs.timelineServerPort;
 
     this.produceLog = (message) => {
@@ -57,6 +57,7 @@ export class PeerFinder {
           this._dht.addNode(node);
         });
       }
+      onReady();
     })
   }
 

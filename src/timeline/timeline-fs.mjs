@@ -32,9 +32,9 @@ export const createTimeline = async (configs, logger) => {
     const data = JSON.parse(await fsp.readFile(configs.dataPath));
     const timelineModel = await TimelineModel.fromPOJSO(data.timelineModel);
     const timelineService = new TimelineService(configs, logger, timelineModel, data.kademliaModel.nodes);
-    await timelineService.syncTimeline(); 
     return [timelineService, timelineModel];
   } catch (exception) {
+    console.log(exception);
     const keystore = await createKeyPair(configs.userName);
     const timelineModel = new TimelineModel(configs.userName, keystore);
     const timelineService = new TimelineService(configs, logger, timelineModel);  

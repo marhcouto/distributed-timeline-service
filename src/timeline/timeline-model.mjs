@@ -41,7 +41,7 @@ export class TimelineModel {
   }
 
   async getPublicKey(userName) {
-    return await getPublicKey(userName, this._timelineModel.keystore);
+    return await getPublicKey(userName, this.keystore);
   }
 
   async getSignedTimelineForUser(userName) {

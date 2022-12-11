@@ -8,7 +8,7 @@ export class TimelineService {
   constructor(configs, logger, timelineModel, previouslyKnownNodes) {
     this._timelineModel = timelineModel;
 
-    this._peerFinder = new PeerFinder(configs, logger, this._onPeerFound.bind(this), previouslyKnownNodes);
+    this._peerFinder = new PeerFinder(configs, logger, this._onPeerFound.bind(this), previouslyKnownNodes, this.syncTimeline.bind(this));
     this._pendingPeerFetch = new Map();
 
     this.produceLog = (message) => {
@@ -48,9 +48,10 @@ export class TimelineService {
       if (error || nFoundClients === 0) {
         return;
       }
-      for(const neigh of this._pendingPeerFetch.get(this._peerFinder.hash(userName))) {
+      const foundPeers = this._pendingPeerFetch.get(this._peerFinder.hash(userName));
+      for(const neigh of foundPeers) {
         try {
-          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, this._timelineModel.getSignedTimelineForUser(userName));
+          await axios.put(`http://${neigh.host}:${neigh.port}/timeline/${userName}`, await this._timelineModel.getSignedTimelineForUser(userName));
         } catch (e) {
           if (e.code !== 403) {
             this.produceLog(`Client ${neigh.host}:${neigh.port} rejected timeline update`);
@@ -94,8 +95,14 @@ export class TimelineService {
       return false;
     }
     const timeline = await this._timelineModel.getTimelineForUser(userName);
-    const newTimelineLastUpdate = timeline[timeline.length - 1].timestamp;
-    if (newTimelineLastUpdate && newTimelineLastUpdate <= await this._timelineModel.lastUpdated(userName)) {
+    let shouldUpdateTimeline = false;
+    if (timeline.length !== 0) {
+      shouldUpdateTimeline = true;
+    } else {
+      const newTimelineLastUpdate = timeline[timeline.length - 1].timestamp;
+      shouldUpdateTimeline = newTimelineLastUpdate <= await this._timelineModel.lastUpdated(userName)
+    }
+    if (!shouldUpdateTimeline) {
       return false;
     }
     this._timelineModel.replaceTimeline(userName, timelineData);
@@ -200,7 +207,7 @@ export class TimelineService {
         }
       }));
     }
-    mergedTimeline.sort((a, b) => a.timestamp - b.timestamp);
+    mergedTimeline.sort((a, b) => b.timestamp - a.timestamp);
     return mergedTimeline;
   }
 
