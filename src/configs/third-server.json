@@ -1,0 +1,6 @@
+{
+  "userName": "andre",
+  "peerFinderPort": "8002",
+  "timelineServerPort": "5002",
+  "bootstrapNodes": []
+}
