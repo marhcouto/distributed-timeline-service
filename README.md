@@ -1,4 +1,8 @@
 # SDLE Second Assignment
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+
+
+**HONK** - Distributed P2P Timeline Application
 
 SDLE Second Assignment of group T06G14
 
